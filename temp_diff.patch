@@ -1,0 +1,22 @@
+--- src/App.js
++++ src/App.js
+@@ -1,6 +1,7 @@
+ import logo from './logo.svg';
+ import './App.css';
+ import ChatPage from "./pages/ChatPage";
++import React from "react";
+ import {BrowserRouter, Route, Routes} from "react-router-dom";
+ 
+ function App() {
+@@ -8,7 +9,9 @@
+ function App() {
+     return (
++      <React.StrictMode>
+         <BrowserRouter>
+           <Routes>
+             <Route path="" element={<ChatPage></ChatPage>}/>
+           </Routes>
+         </BrowserRouter>
++      </React.StrictMode>
+     );
+ }
