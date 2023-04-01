@@ -1,9 +1,8 @@
 //import detectBrowserLanguage from 'detect-browser-language'
 import {useState, useEffect} from 'react';
+import React from 'react';
 
 const IS_LOCAL = false;
-const IS_LOCAL_CONVERTER = false;
-const IS_LOCAL_CHAT = true;
 
 /*
 export let getLanguageMode = (subtitlesMode) => {
@@ -120,25 +119,9 @@ export function getLanguageByCode(languageCode) {
     return language;
 }
 
-export function getServerUrl() {
-    if (IS_LOCAL) {
-        return "http://localhost:8009";
-    } else {
-        return "http://128.199.46.26:8009";
-    }
-}
-
-
-export function getConverterServerUrl() {
-    if (IS_LOCAL_CONVERTER) {
-        return "http://localhost:8019";
-    } else {
-        return "http://128.199.46.26:8019";
-    }
-}
 
 export function getChatServerUrl() {
-    if (IS_LOCAL_CHAT) {
+    if (window.location.hostname === "localhost") {
         return "http://localhost:8020";
     } else {
         return "https://language-challenge-fastapi.herokuapp.com"
