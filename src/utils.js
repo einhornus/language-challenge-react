@@ -119,11 +119,6 @@ export function getLanguageByCode(languageCode) {
     return language;
 }
 
-
 export function getChatServerUrl() {
-    if (window.location.hostname === "localhost") {
-        return "http://localhost:8020";
-    } else {
-        return "https://language-challenge-fastapi.herokuapp.com"
-    }
+    return process.env.REACT_APP_SERVER_URL;
 }
