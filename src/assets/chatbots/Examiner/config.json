@@ -1,0 +1,7 @@
+{
+  "do_show_prompt": true,
+  "name": "Examiner",
+  "model": "gpt-4",
+  "description": "Examiner",
+  "category": "interview"
+}

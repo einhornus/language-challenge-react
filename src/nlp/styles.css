@@ -1,0 +1,21 @@
+.link {
+    text-decoration: none;
+    color: black;
+    cursor: pointer;
+}
+
+.link:hover {
+    color: blue;
+    text-decoration: underline;
+}
+
+ruby {
+    line-height: 2.5;
+    white-space: nowrap;
+}
+
+rt {
+    font-size: 0.6em;
+    line-height: 1;
+    display: block;
+}

@@ -155,10 +155,8 @@ const ChatPage = () => {
                          className={`chat-message ${
                              message["role"] === 'user' ? 'user' : 'assistant'
                          } ${message["type"]}`}>
-                        <ReactMarkdown
-                        >
-                            {message["text"]}
-                        </ReactMarkdown>
+                        <div dangerouslySetInnerHTML = {{__html: message["text"]}}>
+                        </div>
                     </div>
                 ))}
             </div>

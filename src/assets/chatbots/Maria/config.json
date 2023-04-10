@@ -1,0 +1,8 @@
+{
+  "do_show_prompt": false,
+  "name": "Maria",
+  "model": "gpt-4",
+  "description": "Maria",
+  "category": "language",
+  "greeting": "Hello. Let's play a game. I think of simple thing and you're trying to guess it by asking me questions. Are you ready?"
+}

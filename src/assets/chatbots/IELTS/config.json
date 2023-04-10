@@ -1,0 +1,8 @@
+{
+  "do_show_prompt": false,
+  "name": "IELTS",
+  "model": "gpt-4",
+  "description": "IELTS",
+  "greeting": "Hello. Welcome to the IELTS speaking test. I will ask you some questions about yourself. Please answer them as best as you can. Are you ready?",
+  "category": "language"
+}
