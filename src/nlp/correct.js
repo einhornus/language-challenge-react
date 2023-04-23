@@ -118,13 +118,16 @@ function compareText(user, actual, language = "en") {
     }
 
     const goodWords = Array(actualWords.length).fill(true);
+    const hints = Array(actualWords.length).fill("");
     operations.forEach(operation => {
         if (operation.type === "add") {
             let index = operation.index;
+            hints[index] = "Added";
             goodWords[index] = false;
         }
         if (operation.type === "change") {
             let index = operation.index;
+            hints[index] = operation.oldWord + " → " + operation.word;
             goodWords[index] = false;
         }
     });
@@ -137,7 +140,7 @@ function compareText(user, actual, language = "en") {
                 return <span key={i}>{actualWords[i]}</span>;
             } else {
                 return (
-                    <span key={i} style={{backgroundColor: 'yellow'}}>
+                    <span key={i} title={hints[i]} style={{backgroundColor: 'yellow'}}>
                         {actualWords[i]}
                     </span>
                 );
