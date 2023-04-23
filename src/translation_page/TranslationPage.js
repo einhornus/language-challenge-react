@@ -1,27 +1,23 @@
 import React, {useState} from 'react';
 import './TranslationPage.css';
-import LaunguageSelector from "./../common_components/language_selector/LaunguageSelector"
+import LanguageSelector from "../common_components/selectors/LanguageSelector"
 import translate from "./../nlp/translate"
-import {tokenize} from "../nlp/linkify"
 import "./../common_components/common.css"
-
+import {setSettingsTargetLanguage, getSettingsTargetLanguage} from "./../settings_manager/settings.js"
 
 const TranslationPage = () => {
     const [inputText, setInputText] = useState('');
     const [translatedText, setTranslatedText] = useState('');
     const [targetLanguage, setTargetLanguage] = useState('');
 
-
-    console.log(tokenize("我是一只小猫咪，很高兴认识你", "zh"))
-
-    function onLanguageSelect(lang){
+    function onLanguageSelect(lang) {
         setTargetLanguage(lang)
+        setSettingsTargetLanguage(lang)
     }
 
     const handleTranslate = () => {
         setTranslatedText('')
-        let key = "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"
-        translate(key, "gpt-4", inputText, targetLanguage,
+        translate(inputText, targetLanguage,
             function (translation) {
                 setTranslatedText(translation)
             },
@@ -38,7 +34,8 @@ const TranslationPage = () => {
         <div className="translation-page">
             <div className="translation-page-controls">
                 <button onClick={handleTranslate}>Translate</button>
-                <LaunguageSelector title={"Translate to"} onLanguageSelect={onLanguageSelect} isSorted={true} isEnglish={true}></LaunguageSelector>
+                <LanguageSelector title={"Translate to"} onLanguageSelect={onLanguageSelect} isSorted={true}
+                                  isEnglish={true} defaultLanguage={getSettingsTargetLanguage()}></LanguageSelector>
             </div>
 
             <div className="translation-page-container">

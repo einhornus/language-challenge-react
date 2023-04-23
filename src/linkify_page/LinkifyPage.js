@@ -1,36 +1,129 @@
-import React, {useState} from 'react';
+import React, {useState, useRef} from 'react';
 import './LinkifyPage.css';
-import LaunguageSelector from "./../common_components/language_selector/LaunguageSelector"
+import LanguageSelector from "../common_components/selectors/LanguageSelector"
+import Selector from "../common_components/selectors/Selector"
 import translate from "./../nlp/translate"
-import {linkify} from "./../nlp/linkify"
+import {linkify, getArticle} from "./../nlp/linkify"
 import "./../common_components/common.css"
+import Chat from "./../common_components/chat/Chat.js"
+import {
+    setSettingsTargetLanguage,
+    getSettingsTargetLanguage,
+    getSettingsNativeLanguage,
+    setSettingsNativeLanguage,
+    getSettingsTransliterationPolicy,
+    setSettingsTransliterationPolicy,
+    setSettingsDoProvideGrammarExplanations,
+    getSettingsDoProvideGrammarExplanations
+} from "./../settings_manager/settings.js"
 
 const LinkifyPage = () => {
     const [inputText, setInputText] = useState('');
-    const [translatedText, setTranslatedText] = useState('');
-    const [targetLanguage, setTargetLanguage] = useState('');
-    const [nativeLanguage, setNativeLanguage] = useState('');
+    const [targetLanguage, setTargetLanguage] = useState(getSettingsTargetLanguage());
+    const [nativeLanguage, setNativeLanguage] = useState(getSettingsNativeLanguage());
+    const [transliterationPolicy, setTransliterationPolicy] = useState(getSettingsTransliterationPolicy());
+    const [doGrammarExplanations, setDoGrammarExplanations] = useState(getSettingsDoProvideGrammarExplanations());
+    const [linkifiedText, setLinkifiedText] = useState(<p></p>);
+    const chatRef = useRef(null);
 
-
-    function onLanguageSelect(lang) {
-        setTargetLanguage(lang)
+    function onTargetLanguageSelect(lang) {
+        setTargetLanguage(lang);
+        console.log("Target language: " + lang)
+        setSettingsTargetLanguage(lang);
     }
 
     function onNativeLanguageSelect(lang) {
         setNativeLanguage(lang)
+        console.log("Native language: " + lang)
+        setSettingsNativeLanguage(lang)
+    }
+
+    function onTransliterationPolicySelect(o) {
+        setTransliterationPolicy(o)
+        handleLinkify()
+        setSettingsTransliterationPolicy(o)
+    }
+
+    function onExplainGrammarPolicySelect(policy) {
+        setDoGrammarExplanations(policy)
+        setSettingsDoProvideGrammarExplanations(policy)
+    }
+
+    function explainWord(woc) {
+        if (chatRef.current.ghostMessage !== undefined) {
+            return;
+        }
+
+        let header = "Explaining the word **" + woc["word"] + "** in the sentence\n" + woc["sentence"] + "\n"
+
+        chatRef.current.cleanMessages();
+
+        getArticle(woc["words"], woc["index"], targetLanguage, nativeLanguage, (res) => {
+                chatRef.current.setGhostMessage({
+                    "role": "assistant",
+                    "content": header + res
+                })
+            },
+            (res) => {
+                chatRef.current.setGhostMessage(null);
+                chatRef.current.addMessage({
+                    "role": "assistant",
+                    "content": header + res
+                })
+            },
+            (err) => {
+                chatRef.current.addMessage({
+                    "role": "assistant",
+                    "content": "Error: " + err
+                })
+            }
+        )
+
+        chatRef.current.setGhostMessage({
+            "role": "assistant",
+            "content": header
+        })
     }
 
     const handleLinkify = () => {
         let text = inputText
-        let links = linkify(text)
-        setTranslatedText(links)
+        linkify(text, targetLanguage, nativeLanguage, transliterationPolicy, doGrammarExplanations,
+            (res) => setLinkifiedText(res),
+            (res) => setLinkifiedText(res),
+            (err) => console.log(err),
+            explainWord
+        )
     };
+
+    const transliterationSelectorContent = [
+        {value: "no", title: "Don't apply"},
+        {value: "replace", title: "Replace"},
+        {value: "top", title: "Put on top"},
+    ]
+
+    const explainGrammarSelectorContent = [
+        {value: "yes", title: "Yes"},
+        {value: "no", title: "No"},
+    ]
+
+    function handleUserChatMessage() {
+        console.log("User sent message", arguments)
+    }
+
 
     return (
         <div className="linkify-page">
             <div className="linkify-page-controls">
-                <LaunguageSelector title={"Translate to"} onLanguageSelect={onLanguageSelect} isSorted={true}
-                                   isEnglish={true}></LaunguageSelector>
+                <button onClick={handleLinkify}>Linkify</button>
+                <LanguageSelector title={"Target language"} onLanguageSelect={onTargetLanguageSelect} isSorted={true}
+                                  isEnglish={true} defaultLanguage={targetLanguage}></LanguageSelector>
+
+                <LanguageSelector title={"Native language"} onLanguageSelect={onNativeLanguageSelect} isSorted={true}
+                                  isEnglish={true} defaultLanguage={nativeLanguage}></LanguageSelector>
+                <Selector title={'Transliteration'} onSelect={onTransliterationPolicySelect}
+                          options={transliterationSelectorContent} defaultValue={transliterationPolicy}></Selector>
+                <Selector title={'Explain grammar'} onSelect={onExplainGrammarPolicySelect}
+                          options={explainGrammarSelectorContent} defaultValue={doGrammarExplanations}></Selector>
             </div>
 
             <div className="linkify-page-container">
@@ -42,7 +135,10 @@ const LinkifyPage = () => {
                     />
                 </div>
                 <div className="linkify-page-output">
-                    {linkify(inputText)}
+                    {linkifiedText}
+                </div>
+                <div className="linkify-page-chat">
+                    <Chat ref={chatRef} onUserMessage={handleUserChatMessage}></Chat>
                 </div>
             </div>
 

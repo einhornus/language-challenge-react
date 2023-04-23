@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
 import axios from 'axios';
 import './SelectBotPage.css'; // Import the stylesheet
-import LanguageSelector from "../common_components/language_selector/LaunguageSelector"
+import LanguageSelector from "../common_components/selectors/LanguageSelector"
+import {useRef, useState} from 'react';
 
 class SelectBoxPage extends Component {
     constructor(props) {
@@ -9,13 +10,13 @@ class SelectBoxPage extends Component {
         this.state = {
             chatbots: [],
             selectedChatbotId: null,
-            targetLanguage: "en",
-            nativeLanguage: "en"
         };
 
         this.handleChange = this.handleChange.bind(this);
         this.handleTargetLanguageSelect = this.handleTargetLanguageSelect.bind(this);
         this.handleNativeLanguageSelect = this.handleNativeLanguageSelect.bind(this);
+        this.targetLanguageRef = React.createRef()
+        this.nativeLanguageRef = React.createRef()
     }
 
     componentDidMount() {
@@ -35,12 +36,10 @@ class SelectBoxPage extends Component {
 
     handleTargetLanguageSelect(language) {
         console.log('target', language)
-        this.setState({targetLanguage: language});
     }
 
     handleNativeLanguageSelect(language) {
         console.log('native', language)
-        this.setState({nativeLanguage: language});
     }
 
     render() {
@@ -51,10 +50,10 @@ class SelectBoxPage extends Component {
             <div className="chatbot-selector">
                 <div className="language-selectors">
                     <div>
-                        <LanguageSelector title={"Target language"} onLanguageSelect={this.handleTargetLanguageSelect} isSorted={true} isEnglish={true}/>
+                        <LanguageSelector ref = {self.targetLanguageRef} title={"Target language"} onLanguageSelect={this.handleTargetLanguageSelect} isSorted={true} isEnglish={true}/>
                     </div>
                     <div>
-                        <LanguageSelector title={"Native language"} onLanguageSelect={this.handleNativeLanguageSelect} isSorted={true} isEnglish={true}/>
+                        <LanguageSelector  ref = {self.nativeLanguageRef} title={"Native language"} onLanguageSelect={this.handleNativeLanguageSelect} isSorted={true} isEnglish={true}/>
                     </div>
                 </div>
 
@@ -70,10 +69,10 @@ class SelectBoxPage extends Component {
                                 let url = "/chat?bot_name="
                                 url += state.chatbots[state.selectedChatbotId].name
                                 if (state.targetLanguage !== null) {
-                                    url += "&language=" + state.targetLanguage
+                                    url += "&language=" + self.targetLanguageRef.current.getValue()
                                 }
                                 if (state.nativeLanguage !== null) {
-                                    url += "&native=" + state.nativeLanguage
+                                    url += "&native=" + self.nativeLanguageRef.current.getValue()
                                 }
                                 url += "&max_tokens=500"
                                 url += "&temperature=1.0"

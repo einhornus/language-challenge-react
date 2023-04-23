@@ -3,12 +3,48 @@ import {callGPT4APIJSStreaming} from "./../gpt4/api.js"
 import {codeToLanguage} from "./language_utils";
 import './styles.css';
 import {romanize} from "./romanize.js";
+import {getSettingsKey, getSettingsDoUseGPT4} from "../settings_manager/settings";
 
-function getArticle(key, model, message, targetLanguage, nativeLanguage, onPartialResponse, onFullResponse, onError) {
+function getArticle(sentence, index, targetLanguage, nativeLanguage, onPartialResponse, onFullResponse, onError) {
+    let message = ""
+    for (let i = 0; i < sentence.length; i++) {
+        if (i === index) {
+            message += "*" + sentence[i] + "*"
+        } else {
+            message += sentence[i]
+        }
+    }
+    message += "\n" + sentence[index]
+
     let prompt = [
         {
             "role": "system",
-            "content": "You're TranslateGPT.\nYou translate the text to " + codeToLanguage(targetLanguage) + ".\nYour reply should contain ONLY the translated text, nothing else.\nIf the text contains a profanity word please replace it with *** in the translation."
+            "content": "You're LangGPT\n" +
+                "You're given a sentence in " + codeToLanguage(targetLanguage) +
+                " with one word highlighted.\n" +
+                "Your task is to give the concise explanation on the highlighted word\n" +
+                "Your reply should contain:\n" +
+                "1. The dictionary form of the word and its grammatical categories\n" +
+                "2. The meaning of the word in the context of the sentence\n" +
+                "3. The possible meanings of the word in general with sentence examples\n" +
+                "4. Some information on related words\n" +
+                "The structure of the user message:\n" +
+                "The first line contains the sentence with the the word highlighted\n" +
+                "The second line contains the word itself\n"
+        },
+        {
+            "role": "user",
+            "content": "El gato saltó sobre el tejado y **desapareció** en la oscuridad de la noche\n" +
+                "desapareció"
+        },
+        {
+            "role": "assistant",
+            "content": "1. **desapareció** is third-person singular of **desaparecer**\n" +
+                "2. **desaparecer** here means **to disappear**\n" +
+                "3. **desaparecer** can also mean *to vanish, to fade away, to go away, to be lost, to be gone, to be missing, to be absent*:\n" +
+                "- Mis llaves han **desaparecido**: My keys have disappeared\n" +
+                "- El dinero **desapareció**: The money vanished\n" +
+                "4. **desaparecer** comes from des- (negative prefix) and aparecer (to appear)\n"
         },
         {
             "role": "user",
@@ -16,11 +52,55 @@ function getArticle(key, model, message, targetLanguage, nativeLanguage, onParti
         }
     ]
 
-    if (targetLanguage === "eme") {
+
+    if(nativeLanguage !== "en"){
+        message += "\n" + codeToLanguage(nativeLanguage)
+
+
         prompt = [
             {
                 "role": "system",
-                "content": "You are ShakespeareGPT.\nYou are a Shakespearean translator.\nYou rewrite the text in a style of 17 century English\nPlease apply a very heavy stylization\nFeel free to use the vocabulary found in the KJV Bible\n.Your reply should contain ONLY the translated text, nothing else."
+                "content": "You're LangGPT\n" +
+                    "You're given a sentence in " + codeToLanguage(targetLanguage) +
+                    " with one word highlighted.\n" +
+                    "Your task is to give the concise explanation on the highlighted word in\n"+codeToLanguage(nativeLanguage) +
+                    "Your reply should contain:\n" +
+                    "1. The dictionary form of the word and its grammatical categories\n" +
+                    "2. The meaning of the word in the context of the sentence\n" +
+                    "3. The possible meanings of the word in general with sentence examples\n" +
+                    "4. Some information on related words\n" +
+                    "The structure of the user message:\n" +
+                    "The first line contains the sentence with the the word highlighted\n" +
+                    "The second line contains the word itself\n"+
+                    "The third line contains the language ypu should present the explanation in\n"+
+                    "Your explanations must be in \n"+codeToLanguage(nativeLanguage)
+            },
+            {
+                "role": "user",
+                "content": "El gato saltó sobre el tejado y **desapareció** en la oscuridad de la noche\n" +
+                    "desapareció\nEnglish"
+            },
+            {
+                "role": "assistant",
+                "content": "1. **desapareció** is third-person singular of **desaparecer**\n" +
+                    "2. **desaparecer** here means **to disappear**\n" +
+                    "3. **desaparecer** can also mean *to vanish, to fade away, to go away, to be lost, to be gone, to be missing, to be absent*:\n" +
+                    "- Mis llaves han **desaparecido**\n My keys have disappeared\n" +
+                    "- El dinero **desapareció**\n The money vanished\n" +
+                    "4. **desaparecer** comes from **des-** (negative prefix) and **aparecer** (to appear)\n"
+            },
+            {
+                "role": "user",
+                "content": "Despite facing numerous challenges, the dedicated team of scientists continued to make significant progress in their pursuit of discovering innovative solutions to combat climate change.\nfacing\nRussian"
+            },
+            {
+                "role": "assistant",
+                "content": "1. **facing** - третья форма глагола *to face*\n" +
+                    "2. **facing** в данном контексте дословно означает **встретив** (многочисленные трудности). Однако, более правильным решением будет просто не переводить это слово: *Несмотря на многочисленные трудности...*\n" +
+                    "3. **to face** также может переводиться как *сталкиваться с, стоять лицом к, смело встречать что-либо*:\n" +
+                    "- **Face** the sun\n Встань лицом к солнцу\n" +
+                    "- I'm going to have *to **face** this sooner or later\n Рано или поздно мне придется с этим столкнуться.\n" +
+                    "4. Глагол **to face** однокоренной с существительным **face** (лицо)\n"
             },
             {
                 "role": "user",
@@ -29,10 +109,13 @@ function getArticle(key, model, message, targetLanguage, nativeLanguage, onParti
         ]
     }
 
-    callGPT4APIJSStreaming(model, key, prompt, 0, 1000, onFullResponse, onPartialResponse, onError);
+    let key = getSettingsKey()
+    let doUseGPT4 = getSettingsDoUseGPT4()
+    let m = "gpt-3.5-turbo"
+    callGPT4APIJSStreaming(m, key, prompt, 0, 1000, onFullResponse, onPartialResponse, onError);
 }
 
-function tokenize(text, languageCode, granularity = 'word') {
+function tokenize(text, languageCode = "en", granularity = 'word') {
     const segmenter = new Intl.Segmenter(languageCode, {granularity: granularity});
     const segments = segmenter.segment(text);
     const words = [];
@@ -44,18 +127,18 @@ function tokenize(text, languageCode, granularity = 'word') {
     return words;
 }
 
-function linkify(text, targetLanguage, doRomanize = false) {
-    const handleClick = (event, word_in_context) => {
+function linkify(text, tl, nl, tp, ep, onPartialResponse, onFullResponse, onError, clickHandler) {
+    const handleClick = (event, woc) => {
         event.preventDefault();
-        console.log('Link clicked:', word_in_context);
+        clickHandler(woc)
     };
 
-    let sentences = tokenize(text, targetLanguage, 'sentence');
+    let sentences = tokenize(text, tl, 'sentence');
     let words_in_content = []
-    for(let i = 0; i < sentences.length; i++) {
-        let words = tokenize(sentences[i], targetLanguage, 'word');
-        let romanized = romanize(words, targetLanguage)
-        for(let j = 0; j< words.length; j++) {
+    for (let i = 0; i < sentences.length; i++) {
+        let words = tokenize(sentences[i], tl, 'word');
+        let romanized = romanize(words, tl)
+        for (let j = 0; j < words.length; j++) {
             let obj = {
                 word: words[j],
                 sentence: sentences[i],
@@ -77,19 +160,23 @@ function linkify(text, targetLanguage, doRomanize = false) {
                 onClick={(event) => handleClick(event, word_in_content)}
                 className="link"
             >
-                <ruby>
-                    {word_in_content['word']} <rt>
-                        {word_in_content['transliterated']}
-                        <br></br>
+                {tp === "top" ? (
+                    <ruby>
+                        {word_in_content['word']}
+                        <rt>
                             {word_in_content['transliterated']}
-
-                </rt>
-                </ruby>
+                        </rt>
+                    </ruby>
+                ) : (
+                    tp === "replace" ? word_in_content['transliterated'] : word_in_content['word']
+                )}
             </a>
         )
     ));
 
-    return <div style={{fontSize : 20}}>{links}</div>;
+    let res = <div style={{fontSize: 20}}>{links}</div>;
+    onFullResponse(res)
 }
+
 
 export {tokenize, getArticle, linkify};

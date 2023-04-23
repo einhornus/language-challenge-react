@@ -1,11 +1,12 @@
 import React, {useState, useEffect, useRef} from 'react';
 import './Chat.css';
-import axios from "axios";
 import postMessageImage from '../..//assets/icons/postMessage.svg';
 import {useSearchParams} from "react-router-dom";
-import { forwardRef, useImperativeHandle } from 'react';
+import {forwardRef, useImperativeHandle} from 'react';
+import Markdown from 'markdown-to-jsx';
+import {render} from 'react-dom';
 
-const Chat = forwardRef(({ onUserMessage }, ref) => { // Add the onUserMessage prop
+const Chat = forwardRef(({onUserMessage}, ref) => { // Add the onUserMessage prop
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
     const lastMessageRef = useRef(null);
@@ -20,9 +21,14 @@ const Chat = forwardRef(({ onUserMessage }, ref) => { // Add the onUserMessage p
         ]);
     };
 
+    const cleanMessages = () => {
+        setMessages([]);
+    };
+
     // Use the useImperativeHandle hook to expose functions or values to the parent component
     useImperativeHandle(ref, () => ({
         addMessage,
+        cleanMessages,
         setGhostMessage,
         getMessages: () => messages,
     }));
@@ -67,15 +73,13 @@ const Chat = forwardRef(({ onUserMessage }, ref) => { // Add the onUserMessage p
                     return (
                         <div ref={index === messages.length - 1 ? lastMessageRef : null} key={index}
                              className={`chat-message ${messageClass}`}>
-                            <div dangerouslySetInnerHTML={{__html: message.content}}>
-                            </div>
+                            <Markdown>{message.content}</Markdown>
                         </div>
                     );
                 })}
                 {ghostMessage && (
-                    <div className={`chat-message assistant-highlighted`}>
-                        <div dangerouslySetInnerHTML={{__html: ghostMessage.content}}>
-                        </div>
+                    <div className="chat-message assistant-highlighted">
+                        <Markdown>{ghostMessage.content}</Markdown>
                     </div>
                 )}
             </div>

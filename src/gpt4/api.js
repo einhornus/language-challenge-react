@@ -2,8 +2,28 @@ import axios from 'axios';
 
 import {Configuration, OpenAIApi} from 'openai';
 
+let resultMap = new Map();
+
 
 async function callGPT4APIJSStreaming(model, key, messages, temperature, max_tokens, onFullResult, onPartialResult, onError) {
+    let hash = 0;
+
+    if(temperature === 0) {
+        let argumentsHashString = JSON.stringify(messages);
+        argumentsHashString += model;
+        argumentsHashString += max_tokens;
+
+        for (let i = 0; i < argumentsHashString.length; i++) {
+            hash = ((hash << 5) - hash) + argumentsHashString.charCodeAt(i);
+            hash |= 0;
+        }
+
+        if(resultMap.has(hash)) {
+            onFullResult(resultMap.get(hash));
+            return;
+        }
+    }
+
     try {
         const response = await fetch('https://api.openai.com/v1/chat/completions', {
             method: 'POST',
@@ -58,6 +78,9 @@ async function callGPT4APIJSStreaming(model, key, messages, temperature, max_tok
         }
 
         onFullResult(content);
+        if(temperature === 0) {
+            resultMap.set(hash, content);
+        }
     } catch (error) {
         onError(error);
     }

@@ -1,7 +1,12 @@
 import {callGPT4APIJSStreaming} from "./../gpt4/api.js"
 import {codeToLanguage} from "./language_utils";
+import {getSettingsKey, getSettingsDoUseGPT4} from "../settings_manager/settings";
 
-function translate(key, model, message, targetLanguage, onPartialResponse, onFullResponse, onError) {
+function translate(message, targetLanguage, onPartialResponse, onFullResponse, onError) {
+    let key = getSettingsKey()
+    let doUseGPT4 = getSettingsDoUseGPT4()
+    let m = "gpt-3.5-turbo"
+
     let prompt = [
         {
             "role": "system",
@@ -26,7 +31,7 @@ function translate(key, model, message, targetLanguage, onPartialResponse, onFul
         ]
     }
 
-    callGPT4APIJSStreaming(model, key, prompt, 0, 1000, onFullResponse, onPartialResponse, onError);
+    callGPT4APIJSStreaming(m, key, prompt, 0, 1000, onFullResponse, onPartialResponse, onError);
 }
 
 export default translate;
