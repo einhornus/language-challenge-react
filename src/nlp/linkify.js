@@ -119,11 +119,9 @@ function tokenize(text, languageCode = "en", granularity = 'word') {
     const segmenter = new Intl.Segmenter(languageCode, {granularity: granularity});
     const segments = segmenter.segment(text);
     const words = [];
-
     for (const segment of segments) {
         words.push(segment.segment);
     }
-
     return words;
 }
 

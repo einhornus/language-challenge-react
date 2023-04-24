@@ -26,53 +26,79 @@ function isSameWord(user, actual) {
     return user === actual;
 }
 
-function shortestWay(s1, s2) {
-    const m = s1.length, n = s2.length;
+
+/**
+ * Given two string arrays, computes the minimal edit sequence of substitutions, insertion and deletion operations
+ * required to transform the first array into the second one
+ *
+ * @param {string[]} text1 - The first input array.
+ * @param {string[]} text2 - The second input array.
+ * @returns {Object[]} operations - The array of operations to transform text1 into text2.
+ */
+function computeEditSequence(text1, text2) {
+    // Store the lengths of the two input arrays.
+    const m = text1.length, n = text2.length;
+
+    // Initialize a 2D matrix for dynamic programming, where dp[i][j] will
+    // hold the minimal edit distance between the substrings text1[0...i-1] and text2[0...j-1].
     const dp = Array.from({length: m + 1}, () => Array(n + 1).fill(0));
 
+    // Set the base cases for the dynamic programming matrix.
+    // If text1 is empty, then the distance is the length of text2 (all insertions).
+    // If text2 is empty, then the distance is the length of text1 (all deletions).
     for (let i = 0; i <= m; i++) dp[i][0] = i;
     for (let j = 0; j <= n; j++) dp[0][j] = j;
 
+    // Iterate through the matrix, computing the minimal edit distances.
     for (let i = 1; i <= m; i++) {
         for (let j = 1; j <= n; j++) {
-            if (s1[i - 1] === s2[j - 1]) {
+            // If the current words are the same,
+            // no operation is needed, and the distance remains the same.
+            if (text1[i - 1] === text2[j - 1]) {
                 dp[i][j] = dp[i - 1][j - 1];
             } else {
+                // If the current words are different, the minimal distance is
+                // determined by the minimum of the three previous distances, plus 1.
                 dp[i][j] = Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]) + 1;
             }
         }
     }
 
+    // Backtrack through the matrix to find the sequence of operations.
     let i = m, j = n;
     const operations = [];
     while (i > 0 || j > 0) {
-        if (i > 0 && j > 0 && s1[i - 1] === s2[j - 1]) {
+        if (i > 0 && j > 0 && text1[i - 1] === text2[j - 1]) {
+            // If the words are the same, move diagonally up-left.
             i--;
             j--;
         } else {
             if (i > 0 && dp[i][j] === dp[i - 1][j] + 1) {
+                // If the minimal distance comes from the left, it's a deletion operation.
                 let operation = {
-                    'type': "remove",
-                    'word': s1[i - 1],
+                    'type': "delete",
+                    'word': text1[i - 1],
                     'index': i - 1,
                 }
                 operations.push(operation);
                 i--;
             } else if (j > 0 && dp[i][j] === dp[i][j - 1] + 1) {
+                // If the minimal distance comes from above, it's an insertion operation.
                 let operation = {
-                    'type': "add",
-                    'word': s2[j - 1],
+                    'type': "insert",
+                    'word': text2[j - 1],
                     'index': j - 1,
                 }
                 operations.push(operation);
                 j--;
             } else {
+                // If the minimal distance comes from the diagonal, it's a substitution operation.
                 let operation = {
-                    'type': "change",
-                    'word': s2[j - 1],
+                    'type': "substitute",
+                    'word': text2[j - 1],
                     'index': j - 1,
-                    'oldIndex': i - 1,
-                    'oldWord': s1[i - 1],
+                    'originalIndex': i - 1,
+                    'originalWord': text1[i - 1],
                 }
                 operations.push(operation);
                 i--;
@@ -81,6 +107,7 @@ function shortestWay(s1, s2) {
         }
     }
 
+    // Return the array of operations to transform text1 into text2.
     return operations;
 }
 
@@ -109,7 +136,7 @@ function compareText(user, actual, language = "en") {
         }
     }
 
-    let operations = shortestWay(nonSpaceUserTokens, nonSpaceActualTokens);
+    let operations = computeEditSequence(nonSpaceUserTokens, nonSpaceActualTokens);
     for (let i = 0; i < operations.length; i++) {
         operations[i].index = actualTokensMap[operations[i].index];
         if (operations[i].oldIndex !== undefined) {
@@ -120,14 +147,14 @@ function compareText(user, actual, language = "en") {
     const goodWords = Array(actualWords.length).fill(true);
     const hints = Array(actualWords.length).fill("");
     operations.forEach(operation => {
-        if (operation.type === "add") {
+        if (operation.type === "insert") {
             let index = operation.index;
             hints[index] = "Added";
             goodWords[index] = false;
         }
-        if (operation.type === "change") {
+        if (operation.type === "substitute") {
             let index = operation.index;
-            hints[index] = operation.oldWord + " → " + operation.word;
+            hints[index] = operation.originalWord + " → " + operation.word;
             goodWords[index] = false;
         }
     });
@@ -217,7 +244,7 @@ function getLanguageCorrectionExamples(language, correctionType) {
                 ]
             ]
         }
-        if(language === "ru"){
+        if (language === "ru") {
             return [
                 [
                     "я обожаю кодить на питоне всякие прикольные ML-штуки",
