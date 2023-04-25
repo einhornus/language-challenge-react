@@ -110,7 +110,7 @@ async function callGPT4APIJS(model, key, messages, temperature, max_tokens, onFu
 }
 
 function callGPT4APIWS(model, messages, temperature, max_tokens, onFullResult, onPartialResult, onError) {
-    const websocketUrl = 'wss://llm-server.herokuapp.com/';
+    const websocketUrl = 'ws_server_url';
     //const websocketUrl = "ws://localhost:8080/"
 
     const websocket = new WebSocket(websocketUrl);

@@ -182,15 +182,16 @@ function compareText(user, actual, language = "en") {
 function getLanguageCorrectionSystemMessage(language, correctionType) {
     if (correctionType === "grammar") {
         return "You're CorrectGPT.\n" +
-            "You fix grammar and spelling mistakes in " + codeToLanguage(language) + "\n" +
-            "Please only fix grammar and spelling mistakes in the user message\n" +
-            "Your reply should contain ONLY the corrected text, nothing else." +
+            "You fix grammar and spelling mistakes in " + codeToLanguage(language) + " texts.\n" +
+            "Please only fix grammar and spelling mistakes in the user message.\n" +
+            "Your reply should contain ONLY the corrected text, nothing else.\n" +
             "Please use exactly the same formatting as the original text.\n"
     }
-    if (correctionType === "professional") {
+    if (correctionType === "natural") {
         return "You're ImproveGPT.\n" +
-            "You improve the provided " + codeToLanguage(language) + " text language-wise: improve the vocabulary, make it look more professional" + "\n" +
-            "Your reply should contain ONLY the corrected text, nothing else."
+            "You improve the provided " + codeToLanguage(language) + " text language-wise: you fix grammar and spelling mistakes and make it sound more natural.\n" +
+            "Your reply should contain ONLY the corrected text, nothing else.\n"+
+            "Please use exactly the same formatting as the original text\n"
     }
 }
 
@@ -204,7 +205,7 @@ function getLanguageCorrectionExamples(language, correctionType) {
                 ],
                 [
                     "GPT does supports multiple languages without any isses but problem is with search engine. The best models for saerch are English-only. Obviously, there are mulrtilingual models (including OpenAI embeddings) but they will yield more bad search quality.",
-                    "GPT does support multiple languages without any issues but the problem is with the search engine. The best models for search are English-only. Obviously there are multilingual models (including OpenAI embeddings) but they will yield worse search quality. "
+                    "GPT does support multiple languages without any issues but the problem is with the search engine. The best models for search are English-only. Obviously there are multilingual models (including OpenAI embeddings) but they will yield worse search quality."
                 ]
             ]
         } else if (language === "ru") {
@@ -227,7 +228,7 @@ function getLanguageCorrectionExamples(language, correctionType) {
                 ],
                 [
                     "Я очень люблю всех животных. я могу сказать что я люблю все виды животных - от хомяков, собак, кошек, попугаев, до змей. у меня есть две домашние животные. Четыре месяца назад Бабушкина кошка родила моя два кота. Они зовут Маза и Макс, им четыре месяцев. Они оба ещё маленькие, у Макса есть очень длинная и густая шерсть, хотя у Мазы короткая шерсть. Маза и Макс - умние кошки, когда я говорю с ими они меня всегда понимают. Цвет шерсти у их коричневый-белый, глаза зелёные. Когда они были ещё маленькие, они были очень шустрым, мы не могли за ними уследить. Куда бы мы ни пошли, мы всегда берем их со собой. Они появились ко мне от кошки моей бабушки. О им заботиться я и мой папа. Я их кормлю дважды в день а мой папа их выгуливает один раз в день. их любимая игрушка - пластиковая мышь. Я очень люблю своих зеленоглазых кошек",
-                    "Я очень люблю всех животных. я могу сказать что я люблю все виды животных - от хомяков, собак, кошек, попугаев, до змей. у меня есть двое домашних животных. Четыре месяца назад бабушкина кошка родила моих двух котов. Их зовут Маза и Макс, им четыре месяца. Они оба ещё маленькие, у Макса очень длинная и густая шерсть, хотя у Мазы короткая шерсть. Маза и Макс - умные кошки, когда я говорю с ними они меня всегда понимают. Цвет шерсти у их коричнево-белый, глаза зелёные. Когда они были ещё маленькими, они были очень шустрыми, мы не могли за ними уследить. Куда бы мы ни пошли, мы всегда берем их с собой. Они появились у меня от кошки моей бабушки. О них заботимся я и мой папа. Я их кормлю дважды в день, а мой папа их выгуливает один раз в день. Их любимая игрушка - пластиковая мышь. Я очень люблю своих зеленоглазых кошек",
+                    "Я очень люблю всех животных. я могу сказать, что я люблю все виды животных - от хомяков, собак, кошек, попугаев, до змей. у меня есть двое домашних животных. Четыре месяца назад бабушкина кошка родила моих двух котов. Их зовут Маза и Макс, им четыре месяца. Они оба ещё маленькие, у Макса очень длинная и густая шерсть, хотя у Мазы короткая шерсть. Маза и Макс - умные кошки, когда я говорю с ними, они меня всегда понимают. Цвет шерсти у них коричнево-белый, глаза зелёные. Когда они были ещё маленькими, они были очень шустрыми, мы не могли за ними уследить. Куда бы мы ни пошли, мы всегда берем их с собой. Они появились у меня от кошки моей бабушки. О них заботимся я и мой папа. Я их кормлю дважды в день, а мой папа их выгуливает один раз в день. Их любимая игрушка - пластиковая мышь. Я очень люблю своих зеленоглазых кошек",
                 ]
             ]
         }
@@ -235,24 +236,36 @@ function getLanguageCorrectionExamples(language, correctionType) {
         if (language === "en") {
             return [
                 [
-                    "You must use a neural network for this problem",
-                    "I believe it would be better to employ some deep learning techniques to tackle this problem"
+                    "As far as our portals are Eng-based, so I deem it is not necssary to expect some language packs over English",
+                    "Since our portal is English-based, I don't think it's necessary to have language packs besides English."
                 ],
                 [
-                    "wow, my first thought was \"i want to 3d print that\" but i wouldnt know the first thing about doing this myself, generating an .stl file (or any other, .obj, .step, etc.) using javascript sounds kinda hard lmao",
-                    "Upon encountering the object, my initial inclination was to create a 3D printed replica; however, I lack the expertise required to generate an .stl, .obj, or .step file using JavaScript, which seems to be a rather complex endeavor."
+                    "GPT does supports multiple languages without any isses but problem is with search engine. The best models for saerch are English-only. Obviously, there are mulrtilingual models (including OpenAI embeddings) but they will yield more bad search quality.",
+                    "GPT is indeed capable of supporting multiple languages seamlessly, but the issue lies with the search engine. The most effective models for search are English-only. While there are multilingual models available (including OpenAI embeddings), they will yield inferior search quality."
                 ]
             ]
         }
         if (language === "ru") {
             return [
                 [
-                    "я обожаю кодить на питоне всякие прикольные ML-штуки",
-                    "Мне очень нравится разрабатывать интересные приложения с использованием машинного обучения на языке Python"
+                    "нм нужно уйти но она не можт найти её обувь",
+                    "нам нужно уходить, но она не может найти свою обувь"
                 ],
                 [
-                    "wow, my first thought was \"i want to 3d print that\" but i wouldnt know the first thing about doing this myself, generating an .stl file (or any other, .obj, .step, etc.) using javascript sounds kinda hard lmao",
-                    "Upon encountering the object, my initial inclination was to create a 3D printed replica; however, I lack the expertise required to generate an .stl, .obj, or .step file using JavaScript, which seems to be a rather complex endeavor."
+                    "эта тарлека - грязная, поэтому мне нужно её мыть",
+                    "эта тарелка грязная, поэтому мне нужно её вымыть"
+                ],
+                [
+                    "я хочу купить новую машину, но мне нужно продать свою старую машину",
+                    "я хочу купить новую машину, но мне нужно сначала продать свою старую"
+                ],
+                [
+                    "кто мог продать мне ниссан фронтир по хорошая цена?",
+                    "кто мог бы продать мне Nissan Frontier по хорошей цене?"
+                ],
+                [
+                    "Я очень люблю всех животных. я могу сказать что я люблю все виды животных - от хомяков, собак, кошек, попугаев, до змей. у меня есть две домашние животные. Четыре месяца назад Бабушкина кошка родила моя два кота. Они зовут Маза и Макс, им четыре месяцев. Они оба ещё маленькие, у Макса есть очень длинная и густая шерсть, хотя у Мазы короткая шерсть. Маза и Макс - умние кошки, когда я говорю с ими они меня всегда понимают. Цвет шерсти у их коричневый-белый, глаза зелёные. Когда они были ещё маленькие, они были очень шустрым, мы не могли за ними уследить. Куда бы мы ни пошли, мы всегда берем их со собой. Они появились ко мне от кошки моей бабушки. О им заботиться я и мой папа. Я их кормлю дважды в день а мой папа их выгуливает один раз в день. их любимая игрушка - пластиковая мышь. Я очень люблю своих зеленоглазых кошек",
+                    "Я очень люблю всех животных. я могу сказать, что я люблю все виды животных - от хомяков, собак, кошек, попугаев, до змей. у меня есть двое домашних животных. Четыре месяца назад кошка моей бабушки родила двух котят. Их зовут Маза и Макс, им по четыре месяца. Они оба ещё маленькие. У Макса очень длинная и густая шерсть, хотя у Мазы - короткая. Маза и Макс - умные кошки, когда я говорю с ними, они всегда меня понимают. Цвет шерсти у них коричнево-белый, глаза зелёные. Когда они были ещё маленькими, они были очень шустрыми, мы не могли за ними уследить. Куда бы мы ни пошли, мы всегда берем их с собой. Их родила кошка моей бабушки. Мы с моим папой заботимся о них. Я их кормлю дважды в день, а мой папа их выгуливает один раз в день. их любимая игрушка - пластиковая мышь. Я очень люблю своих зеленоглазых кошек",
                 ]
             ]
         }

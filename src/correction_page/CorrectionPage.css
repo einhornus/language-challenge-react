@@ -27,6 +27,17 @@
 .correction-page-controls {
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    height: 100%;
     width: 80%;
     margin-top: 20px;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+    align-content: c;
+}
+
+.cursor-pointer:hover {
+    cursor: pointer;
 }

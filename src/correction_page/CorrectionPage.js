@@ -5,6 +5,8 @@ import correct from "../nlp/correct.js"
 import "./../common_components/common.css"
 import Markdown from 'markdown-to-jsx';
 import {codeToLanguage} from "../nlp/language_utils";
+import proofreadingPng from "./proofreading.png"
+import settingsPng from "./settings.png"
 
 import {
     setSettingsCorrectLanguage,
@@ -12,7 +14,7 @@ import {
     getSettingsDoUseGPT4,
     getSettingsCorrectLanguage,
     getSettingsCorrectionType,
-    setSettingsCorrectionType
+    setSettingsCorrectionType, getSettingsKey
 } from "./../settings_manager/settings.js"
 import {detect} from "../nlp/detect_language";
 import LanguageSelector from "../common_components/selectors/LanguageSelector";
@@ -37,7 +39,20 @@ const CorrectionPage = () => {
         setSettingsCorrectLanguage(val)
     }
 
-    const handleTranslate = () => {
+    const handleGoToSettings = () => {
+        let currentUrl = window.location.href;
+        let newUrl = currentUrl.replace("correct", "settings");
+        //go to the new url
+        window.open(newUrl, "_blank")
+    };
+
+
+    const handleCorrect = () => {
+        if(getSettingsKey() === ""){
+            alert("Your OpenAI API key is not set. Please configure it on the settings page that has just opened")
+            handleGoToSettings()
+        }
+
         setOutputText('')
 
         console.log("Correcting text: ", inputText)
@@ -61,14 +76,14 @@ const CorrectionPage = () => {
                 setOutputText(translation)
             },
             function (error) {
-                setOutputText("Error: "+ error)
+                setOutputText("Error: " + error)
             }
         )
     };
 
     let correctionTypeOptions = [
-        {value: "grammar", title: "Correct grammar"},
-        {value: "professional", title: "Make more professional"},
+        {value: "grammar", title: "Just correct grammar"},
+        {value: "natural", title: "Make more natural"},
     ]
 
     let useGPT4Options = [
@@ -81,7 +96,7 @@ const CorrectionPage = () => {
     return (
         <div className="correction-page">
             <div className="correction-page-controls">
-                <button onClick={handleTranslate}>Correct</button>
+                <img className={"cursor-pointer"} src={proofreadingPng} width={80} height={80} onClick={handleCorrect}/>
                 <LanguageSelector title={"Language"} defaultLanguage={getSettingsCorrectLanguage()} addAutoValue={true}
                                   onLanguageSelect={onTargetLanguageSelect} isSorted={true} isEnglish={true}
                                   ref={languageRef}/>
@@ -91,7 +106,7 @@ const CorrectionPage = () => {
                 <Selector ref={correctionTypeRef} title={"Correction type"} onSelect={onCorrectionTypeSelect}
                           options={correctionTypeOptions}
                           defaultValue={getSettingsCorrectionType()}></Selector>
-
+                <img className={"cursor-pointer"} src={settingsPng} width={30} height={30} onClick={handleGoToSettings}/>
             </div>
 
             <div className="correction-page-container">

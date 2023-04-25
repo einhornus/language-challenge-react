@@ -374,16 +374,30 @@ const customStyles = {
     }),
 };
 
+let autoLanguage = {
+    value: 'auto',
+    flag: <h>🌍</h>,
+    title: 'Detect',
+    englishTitle: 'Detect',
+}
+
 class LanguageSelector extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             selectedLanguage: this.getDefaultOption(),
         };
+        console.log('LanguageSelector', this.state.selectedLanguage)
     }
 
     getDefaultOption() {
+
         const { defaultLanguage } = this.props;
+
+        if(defaultLanguage === "auto"){
+            return autoLanguage;
+        }
+
         const defaultOption =
             defaultLanguage &&
             languageOptions.find((option) => option.value === defaultLanguage);
@@ -393,7 +407,7 @@ class LanguageSelector extends React.Component {
     componentDidMount() {
         const { onLanguageSelect } = this.props;
         const { selectedLanguage } = this.state;
-        onLanguageSelect(selectedLanguage.value);
+        //onLanguageSelect(selectedLanguage.value);
     }
 
     handleLanguageChange = (option) => {
@@ -427,12 +441,7 @@ class LanguageSelector extends React.Component {
             }
 
             if (!hasAuto) {
-                languageOptions.push({
-                    value: 'auto',
-                    flag: <h>🌍</h>,
-                    title: 'Detect',
-                    englishTitle: 'Detect',
-                });
+                languageOptions.push(autoLanguage);
             }
         }
 
