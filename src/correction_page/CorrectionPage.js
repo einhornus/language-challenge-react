@@ -49,7 +49,7 @@ const CorrectionPage = () => {
 
     const handleCorrect = () => {
         if(getSettingsKey() === ""){
-            alert("Your OpenAI API key is not set. Please configure it on the settings page that has just opened")
+            alert("Your OpenAI API key is not set. Please configure it on the settings page")
             handleGoToSettings()
         }
 
