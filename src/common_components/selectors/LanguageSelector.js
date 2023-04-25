@@ -387,7 +387,6 @@ class LanguageSelector extends React.Component {
         this.state = {
             selectedLanguage: this.getDefaultOption(),
         };
-        console.log('LanguageSelector', this.state.selectedLanguage)
     }
 
     getDefaultOption() {
@@ -402,12 +401,6 @@ class LanguageSelector extends React.Component {
             defaultLanguage &&
             languageOptions.find((option) => option.value === defaultLanguage);
         return defaultOption || languageOptions[0];
-    }
-
-    componentDidMount() {
-        const { onLanguageSelect } = this.props;
-        const { selectedLanguage } = this.state;
-        //onLanguageSelect(selectedLanguage.value);
     }
 
     handleLanguageChange = (option) => {

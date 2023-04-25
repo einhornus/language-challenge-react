@@ -15,7 +15,7 @@ function App() {
         <BrowserRouter>
             <Routes>
                 <Route path="chat" element={<ChatPage></ChatPage>}/>
-                <Route path="" element={<SelectBoxPage></SelectBoxPage>}/>
+                <Route path="select" element={<SelectBoxPage></SelectBoxPage>}/>
                 <Route path="translate" element={<TranslationPage></TranslationPage>}/>
                 <Route path="linkify" element={<LinkifyPage></LinkifyPage>}/>
                 <Route path="correct" element={<CorrectionPage></CorrectionPage>}/>
