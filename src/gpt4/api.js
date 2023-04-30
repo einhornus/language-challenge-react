@@ -5,13 +5,13 @@ import {Configuration, OpenAIApi} from 'openai';
 let resultMap = new Map();
 
 
-async function callGPT4APIJSStreaming(model, key, messages, temperature, max_tokens, onFullResult, onPartialResult, onError) {
+async function callGPT4APIJSStreaming(model, key, prompt, temperature, maxTokens, onFullResult, onPartialResult, onError) {
     let hash = 0;
 
     if(temperature === 0) {
-        let argumentsHashString = JSON.stringify(messages);
+        let argumentsHashString = JSON.stringify(prompt);
         argumentsHashString += model;
-        argumentsHashString += max_tokens;
+        argumentsHashString += maxTokens;
 
         for (let i = 0; i < argumentsHashString.length; i++) {
             hash = ((hash << 5) - hash) + argumentsHashString.charCodeAt(i);
@@ -33,8 +33,8 @@ async function callGPT4APIJSStreaming(model, key, messages, temperature, max_tok
             },
             body: JSON.stringify({
                 model: model,
-                messages,
-                max_tokens: max_tokens,
+                messages: prompt,
+                max_tokens: maxTokens,
                 n: 1,
                 temperature: temperature,
                 stream: true,
