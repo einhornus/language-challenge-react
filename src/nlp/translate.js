@@ -1,9 +1,8 @@
 import {callGPT4} from "./../gpt4/api.js"
 import {codeToLanguage} from "./language_utils";
-import {getSettingsKey, getSettingsDoUseGPT4} from "../settings_manager/settings";
+import {getSettingsDoUseGPT4} from "../settings_manager/settings";
 
 function translate(message, targetLanguage, onPartialResponse, onFullResponse, onError) {
-    let key = getSettingsKey()
     let doUseGPT4 = getSettingsDoUseGPT4()
     let m = "gpt-3.5-turbo"
 
@@ -31,7 +30,7 @@ function translate(message, targetLanguage, onPartialResponse, onFullResponse, o
         ]
     }
 
-    callGPT4(m, prompt, 0, 1000, onFullResponse, onPartialResponse, onError);
+    callGPT4(m, prompt, 0, -1, onFullResponse, onPartialResponse, onError);
 }
 
 export default translate;

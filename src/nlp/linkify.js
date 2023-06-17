@@ -3,7 +3,7 @@ import {callGPT4} from "./../gpt4/api.js"
 import {codeToLanguage} from "./language_utils";
 import './styles.css';
 import {romanize} from "./romanize.js";
-import {getSettingsKey, getSettingsDoUseGPT4} from "../settings_manager/settings";
+import {getSettingsDoUseGPT4} from "../settings_manager/settings";
 
 function getArticle(sentence, index, targetLanguage, nativeLanguage, onPartialResponse, onFullResponse, onError) {
     let message = ""
@@ -109,7 +109,6 @@ function getArticle(sentence, index, targetLanguage, nativeLanguage, onPartialRe
         ]
     }
 
-    let key = getSettingsKey()
     let doUseGPT4 = getSettingsDoUseGPT4()
     let m = "gpt-3.5-turbo"
     callGPT4(m, prompt, 0, -1, onFullResponse, onPartialResponse, onError);

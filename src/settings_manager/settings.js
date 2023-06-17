@@ -48,14 +48,6 @@ function getSettingsDoProvideGrammarExplanations() {
     return val
 }
 
-function getSettingsKey() {
-    let val = Cookies.get('openaiAPIKey');
-    if (val === undefined) {
-        return ""
-    }
-    return val
-}
-
 function getSettingsDoUseGPT4() {
     let val = Cookies.get('doUseGPT4');
     if (val === undefined) {
@@ -138,7 +130,6 @@ export {
     getSettingsTargetLanguage,
     getSettingsTransliterationPolicy,
     getSettingsDoProvideGrammarExplanations,
-    getSettingsKey,
     getSettingsDoUseGPT4,
     setSettingsNativeLanguage,
     setSettingsTargetLanguage,

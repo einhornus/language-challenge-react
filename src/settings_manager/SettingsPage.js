@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import './SettingsPage.css';
-import {setSettingsKey, getSettingsKey} from "./../settings_manager/settings.js"
 
 const SettingsPage = () => {
-    const [apiKey, setApiKey] = useState(getSettingsKey());
+    const [apiKey, setApiKey] = useState('');
 
     const handleChange = (e) => {
         setApiKey(e.target.value);
@@ -12,7 +11,7 @@ const SettingsPage = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         console.log('API Key:', apiKey);
-        setSettingsKey(apiKey)
+        //setSettingsKey(apiKey)
     };
 
     return (

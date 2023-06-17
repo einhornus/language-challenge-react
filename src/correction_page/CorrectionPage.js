@@ -14,7 +14,7 @@ import {
     getSettingsDoUseGPT4,
     getSettingsCorrectLanguage,
     getSettingsCorrectionType,
-    setSettingsCorrectionType, getSettingsKey, getSettingsLogin, getSettingsPassword,
+    setSettingsCorrectionType, getSettingsLogin, getSettingsPassword,
     getSettingsSignedUp
 } from "./../settings_manager/settings.js"
 import {getBalance} from "../auth/SignInPage";
@@ -65,11 +65,6 @@ const CorrectionPage = () => {
 
 
     const handleCorrect = () => {
-        if (getSettingsKey() === "") {
-            alert("Your OpenAI API key is not set. Please configure it on the settings page")
-            handleGoToSettings()
-        }
-
         setOutputText('')
 
         console.log("Correcting text: ", inputText)
