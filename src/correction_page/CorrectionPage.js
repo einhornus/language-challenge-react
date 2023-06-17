@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react';
+import React, {useRef, useState, useEffect} from 'react';
 import './CorrectionPage.css';
 import Selector from "../common_components/selectors/Selector"
 import correct from "../nlp/correct.js"
@@ -14,17 +14,35 @@ import {
     getSettingsDoUseGPT4,
     getSettingsCorrectLanguage,
     getSettingsCorrectionType,
-    setSettingsCorrectionType, getSettingsKey
+    setSettingsCorrectionType, getSettingsKey, getSettingsLogin, getSettingsPassword,
+    getSettingsSignedUp
 } from "./../settings_manager/settings.js"
+import {getBalance} from "../auth/SignInPage";
 import {detect} from "../nlp/detect_language";
 import LanguageSelector from "../common_components/selectors/LanguageSelector";
 
 const CorrectionPage = () => {
     const [inputText, setInputText] = useState('');
+    const [balance, setBalance] = useState(0);
     const [outputText, setOutputText] = useState('');
     const correctionTypeRef = useRef(null);
     const useGPT4Ref = useRef(null);
     const languageRef = useRef(null);
+
+
+    useEffect(() => {
+        getBalance(getSettingsLogin(), getSettingsPassword(), (balance) => {
+            setBalance(balance);
+        }, (error) => {
+            if(getSettingsSignedUp()){
+                window.location.assign("/sign_in?from=correct");
+            }
+            else {
+                window.location.assign("/?from=correct");
+            }
+        });
+    }, []);
+
 
     function onCorrectionTypeSelect(val) {
         setSettingsCorrectionType(val)
@@ -42,13 +60,12 @@ const CorrectionPage = () => {
     const handleGoToSettings = () => {
         let currentUrl = window.location.href;
         let newUrl = currentUrl.replace("correct", "settings");
-        //go to the new url
         window.open(newUrl, "_blank")
     };
 
 
     const handleCorrect = () => {
-        if(getSettingsKey() === ""){
+        if (getSettingsKey() === "") {
             alert("Your OpenAI API key is not set. Please configure it on the settings page")
             handleGoToSettings()
         }
@@ -74,6 +91,12 @@ const CorrectionPage = () => {
             },
             function (translation) {
                 setOutputText(translation)
+
+                getBalance(getSettingsLogin(), getSettingsPassword(), (balance) => {
+                    setBalance(balance);
+                }, (error) => {
+                    alert(error);
+                });
             },
             function (error) {
                 setOutputText("Error: " + error)
@@ -106,7 +129,10 @@ const CorrectionPage = () => {
                 <Selector ref={correctionTypeRef} title={"Correction type"} onSelect={onCorrectionTypeSelect}
                           options={correctionTypeOptions}
                           defaultValue={getSettingsCorrectionType()}></Selector>
-                <img className={"cursor-pointer"} src={settingsPng} width={30} height={30} onClick={handleGoToSettings}/>
+
+                <div>
+                    {getSettingsLogin()}<br></br>{balance}💰
+                </div>
             </div>
 
             <div className="correction-page-container">

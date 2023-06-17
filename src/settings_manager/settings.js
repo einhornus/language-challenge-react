@@ -97,6 +97,42 @@ function setSettingsDoUseGPT4(key) {
     Cookies.set('doUseGPT4', key);
 }
 
+function getSettingsLogin() {
+    let val = Cookies.get('login');
+    if (val === undefined) {
+        return ""
+    }
+    return val
+}
+
+function setSettingsLogin(login) {
+    Cookies.set('login', login);
+}
+
+function getSettingsPassword() {
+    let val = Cookies.get('password');
+    if (val === undefined) {
+        return ""
+    }
+    return val
+}
+
+function getSettingsSignedUp() {
+    let val = Cookies.get('signedUp');
+    if (val === undefined) {
+        return false
+    }
+    return val === "true"
+}
+
+function setSettingsSignedUp(signedUp) {
+    Cookies.set('login', signedUp? "true" : "false");
+}
+
+function setSettingsPassword(password) {
+    Cookies.set('password', password);
+}
+
 export {
     getSettingsNativeLanguage,
     getSettingsTargetLanguage,
@@ -113,5 +149,11 @@ export {
     getSettingsCorrectLanguage,
     setSettingsCorrectLanguage,
     getSettingsCorrectionType,
-    setSettingsCorrectionType
+    setSettingsCorrectionType,
+    getSettingsLogin,
+    setSettingsLogin,
+    getSettingsPassword,
+    setSettingsPassword,
+    getSettingsSignedUp,
+    setSettingsSignedUp,
 }

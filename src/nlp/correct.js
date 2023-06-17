@@ -1,4 +1,4 @@
-import {callGPT4APIJSStreaming} from "./../gpt4/api.js"
+import {callGPT4} from "./../gpt4/api.js"
 import {codeToLanguage} from "./language_utils";
 import {getSettingsKey, getSettingsDoUseGPT4} from "../settings_manager/settings";
 import {tokenize} from "./linkify";
@@ -330,7 +330,7 @@ function correct(message, correctionType, doUseGPT4, language, onPartialResponse
     )
 
 
-    callGPT4APIJSStreaming(m, key, prompt, 0, 1000,
+    callGPT4(m, prompt, 0, -1,
         (response) => {
             let comparison = compareText(message, response)
             let res = comparison
