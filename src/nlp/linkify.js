@@ -227,18 +227,21 @@ function linkify2(text, tl, nl, clickHandler, onPartialResponse, onFullResponse,
     }
 
     const links = wordsInContext.map((word_in_content, index) => (
-        word_in_content['word'] === ' ' ? (
-            ' '
-        ) : (
-            <a
-                key={index}
-                href="#"
-                onClick={(event) => handleClick(event, word_in_content)}
-                className="link"
-            >
-                {word_in_content['word']}
-            </a>
-        )
+        word_in_content['word'] === '\n' ?
+            <br key={index}/>
+            : (
+                word_in_content['word'] === ' ' ? (
+                    ' '
+                ) : (
+                    <a
+                        key={index}
+                        href="#"
+                        onClick={(event) => handleClick(event, word_in_content)}
+                        className="link"
+                    >
+                        {word_in_content['word']}
+                    </a>
+                ))
     ));
 
     let res = <div style={{fontSize: 20}}>{links}</div>;
