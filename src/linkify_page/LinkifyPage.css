@@ -20,8 +20,9 @@
 
 .linkify-page-output {
     margin: 10px;
-    flex: 2;
+    flex: 1;
     height: 80vh;
+    overflow-y: auto;
 }
 
 .linkify-page-chat {

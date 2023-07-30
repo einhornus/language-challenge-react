@@ -1,7 +1,7 @@
 import {callGPT4} from "./../gpt4/api.js"
 import {codeToLanguage} from "./language_utils";
-import {getSettingsKey, getSettingsDoUseGPT4} from "../settings_manager/settings";
-import {tokenize} from "./linkify";
+import {getSettingsKey, getSettingsDoUseGPT4, getSettingsModel} from "../settings_manager/settings";
+import {tokenizeLocal} from "./tokenize";
 import {detect} from "./detect_language";
 import Markdown from "markdown-to-jsx";
 
@@ -116,8 +116,8 @@ function compareText(user, actual, language = "en") {
         actual = actual.slice(0, -1);
     }
 
-    const userWords = tokenize(user, language);
-    const actualWords = tokenize(actual, language);
+    const userWords = tokenizeLocal(user, language);
+    const actualWords = tokenizeLocal(actual, language);
 
     let nonSpaceUserTokens = [];
     let nonSpaceActualTokens = [];
@@ -196,7 +196,7 @@ function getLanguageCorrectionSystemMessage(language, correctionType) {
     if (correctionType === "natural") {
         return "You're ImproveGPT.\n" +
             "You improve the provided " + codeToLanguage(language) + " text language-wise: you fix grammar and spelling mistakes and make it sound more natural.\n" +
-            "Your reply should contain ONLY the corrected text, nothing else.\n"+
+            "Your reply should contain ONLY the corrected text, nothing else.\n" +
             "Please use exactly the same formatting as the original text\n"
     }
 }
@@ -246,8 +246,7 @@ function getLanguageCorrectionExamples(language, correctionType, model) {
                         "В языковой сфере существуют две потребности - идентичности и взаимопонимания. Лишь одноязычное общество может удовлетворять обе потребности, но такое общество никогда не бывает на свете, поэтому государству нужно создать языковую политику, подчеркивая потребности взаимопонимания"
                     ]
                 ]
-            }
-            else{
+            } else {
                 return [
                     [
                         "Моё сердце болет благодаря той девушке",
@@ -270,7 +269,7 @@ function getLanguageCorrectionExamples(language, correctionType, model) {
         }
     } else {
         if (language === "en") {
-            if(model === "gpt-3.5-turbo") {
+            if (model === "gpt-3.5-turbo") {
                 return [
                     [
                         "As far as our portals are Eng-based, so I deem it is not necssary to expect some language packs over English",
@@ -281,8 +280,7 @@ function getLanguageCorrectionExamples(language, correctionType, model) {
                         "GPT is indeed capable of supporting multiple languages seamlessly, but the issue lies with the search engine. The most effective models for search are English-only. While there are multilingual models available (including OpenAI embeddings), they will yield inferior search quality."
                     ]
                 ]
-            }
-            else{
+            } else {
                 return [
                     "As far as our portals are Eng-based, so I deem it is not necssary to expect some language packs over English",
                     "Since our portal is English-based, I don't think it's necessary to have language packs besides English."
@@ -290,7 +288,7 @@ function getLanguageCorrectionExamples(language, correctionType, model) {
             }
         }
         if (language === "ru") {
-            if(model === "gpt-3.5-turbo") {
+            if (model === "gpt-3.5-turbo") {
                 return [
                     [
                         "нм нужно уйти но она не можт найти её обувь",
@@ -321,8 +319,7 @@ function getLanguageCorrectionExamples(language, correctionType, model) {
                         "В языковой сфере существуют две основные потребности - идентичности и взаимопонимания. Лишь моноязычное общество может удовлетворять обе потребности, но таких обществ не существует. Из-за этого государству нужно осуществлять языковую политику, которая делает акцент на взаимопонимании"
                     ]
                 ]
-            }
-            else{
+            } else {
                 return [
                     [
                         "нм нужно уйти но она не можт найти её обувь",
@@ -349,28 +346,11 @@ function getLanguageCorrectionExamples(language, correctionType, model) {
 }
 
 function correct(message, correctionType, doUseGPT4, language, onPartialResponse, onFullResponse, onError) {
-    let m = "gpt-3.5-turbo"
-    if (doUseGPT4) {
-        m = "gpt-4"
-    }
+    let m = getSettingsModel()
 
     let prompt = []
 
     let examples = getLanguageCorrectionExamples(language, correctionType, m)
-    for (let i = 0; i < examples.length; i++) {
-        prompt.push(
-            {
-                "role": "user",
-                "content": examples[i][0]
-            }
-        )
-        prompt.push(
-            {
-                "role": "assistant",
-                "content": examples[i][1]
-            }
-        )
-    }
 
     prompt.push(
         {
@@ -378,6 +358,23 @@ function correct(message, correctionType, doUseGPT4, language, onPartialResponse
             "content": getLanguageCorrectionSystemMessage(language, correctionType)
         }
     )
+
+    for (let i = 0; i < examples.length; i++) {
+        prompt.push(
+            {
+                "role": "system",
+                "content": examples[i][0],
+                "name": "example_user"
+            }
+        )
+        prompt.push(
+            {
+                "role": "system",
+                "content": examples[i][1],
+                "name": "example_assistant"
+            }
+        )
+    }
 
     prompt.push(
         {
@@ -387,7 +384,7 @@ function correct(message, correctionType, doUseGPT4, language, onPartialResponse
     )
 
 
-    callGPT4(m, prompt, 0, -1,
+    callGPT4(prompt, 0, -1,
         (response) => {
             let comparison = compareText(message, response)
             let res = comparison
@@ -397,7 +394,7 @@ function correct(message, correctionType, doUseGPT4, language, onPartialResponse
             let targetLanguage = codeToLanguage(language)
             //let div1 = <Markdown>{`Detected language: **${targetLanguage}**`}</Markdown>
 
-            let actualWords = tokenize(response)
+            let actualWords = tokenizeLocal(response)
             const newRes = actualWords.map((goodWord, i) => {
                 if (actualWords[i] === "\n") {
                     return <br key={i}/>

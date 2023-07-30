@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import './TranslationPage.css';
 import LanguageSelector from "../common_components/selectors/LanguageSelector"
-import translate from "./../nlp/translate"
+import {translate} from "./../nlp/translate"
 import "./../common_components/common.css"
 import {setSettingsTargetLanguage, getSettingsTargetLanguage} from "./../settings_manager/settings.js"
 

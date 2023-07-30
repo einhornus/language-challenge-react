@@ -66,12 +66,6 @@ const languageOptions = [
         englishTitle: 'Russian'
     },
     {
-        value: 'eme',
-        flag: <img src="https://flagpedia.net/data/flags/mini/gb-eng.png" alt="EM English"/>,
-        title: 'EM English',
-        englishTitle: 'EM English'
-    },
-    {
         value: 'id',
         flag: <img src="https://flagpedia.net/data/flags/mini/id.png" alt="Bah. Indonesia"/>,
         title: 'B. Indonesia',

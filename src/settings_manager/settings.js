@@ -56,6 +56,15 @@ function getSettingsDoUseGPT4() {
     return val
 }
 
+function getSettingsModel(){
+    let doUseGPT4 = getSettingsDoUseGPT4()
+    let m = "gpt-3.5-turbo"
+    if (doUseGPT4 === "yes") {
+        m = "gpt-4"
+    }
+    return m
+}
+
 function setSettingsNativeLanguage(nativeLanguage) {
     Cookies.set('nativeLanguage', nativeLanguage);
 }
@@ -79,10 +88,6 @@ function setSettingsTransliterationPolicy(transliterationPolicy) {
 
 function setSettingsDoProvideGrammarExplanations(doGrammarExplanations) {
     Cookies.set('doProvideGrammarExplanations', doGrammarExplanations);
-}
-
-function setSettingsKey(key) {
-    Cookies.set('openaiAPIKey', key);
 }
 
 function setSettingsDoUseGPT4(key) {
@@ -135,7 +140,6 @@ export {
     setSettingsTargetLanguage,
     setSettingsTransliterationPolicy,
     setSettingsDoProvideGrammarExplanations,
-    setSettingsKey,
     setSettingsDoUseGPT4,
     getSettingsCorrectLanguage,
     setSettingsCorrectLanguage,
@@ -147,4 +151,5 @@ export {
     setSettingsPassword,
     getSettingsSignedUp,
     setSettingsSignedUp,
+    getSettingsModel
 }

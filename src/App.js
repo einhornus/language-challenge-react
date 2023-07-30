@@ -7,7 +7,7 @@ import LinkifyPage from "./linkify_page/LinkifyPage";
 import CorrectionPage from "./correction_page/CorrectionPage";
 import SettingsPage from "./settings_manager/SettingsPage";
 import SignUpPage from "./auth/SignUpPage";
-import {SignInPage, signIn} from "./auth/SignInPage";
+import {SignInPage} from "./auth/SignInPage";
 
 
 import {BrowserRouter, Route, Routes} from "react-router-dom";

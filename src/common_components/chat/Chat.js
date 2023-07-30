@@ -30,13 +30,14 @@ const Chat = forwardRef(({onUserMessage}, ref) => { // Add the onUserMessage pro
         addMessage,
         cleanMessages,
         setGhostMessage,
+        ghostMessage,
         getMessages: () => messages,
     }));
 
 
     const handleSubmit = (e) => {
         if (isActive) {
-            if (input.length > 0) {
+            if (input.length > 0 && ghostMessage === null) {
                 const userMessage = {"role": "user", "content": input, "type": "regular"};
                 addMessage(userMessage);
                 setInput('');

@@ -34,10 +34,9 @@ const CorrectionPage = () => {
         getBalance(getSettingsLogin(), getSettingsPassword(), (balance) => {
             setBalance(balance);
         }, (error) => {
-            if(getSettingsSignedUp()){
+            if (getSettingsSignedUp()) {
                 window.location.assign("/sign_in?from=correct");
-            }
-            else {
+            } else {
                 window.location.assign("/?from=correct");
             }
         });
@@ -63,23 +62,7 @@ const CorrectionPage = () => {
         window.open(newUrl, "_blank")
     };
 
-
-    const handleCorrect = () => {
-        setOutputText('')
-
-        console.log("Correcting text: ", inputText)
-        console.log(languageRef.current.getValue())
-        console.log(correctionTypeRef.current.getValue())
-        console.log(useGPT4Ref.current.getValue())
-
-
-        let languageCode = languageRef.current.getValue()
-        if (languageRef.current.getValue() === "auto") {
-            languageCode = detect(inputText)
-            let text = "**" + codeToLanguage(languageCode) + "** detected";
-            setOutputText(<Markdown>{text}</Markdown>)
-        }
-
+    function performCorrection(languageCode){
         correct(inputText, correctionTypeRef.current.getValue(), useGPT4Ref.current.getValue() === "yes", languageCode,
             function (translation) {
                 setOutputText(translation)
@@ -97,6 +80,23 @@ const CorrectionPage = () => {
                 setOutputText("Error: " + error)
             }
         )
+    }
+
+    const handleCorrect = () => {
+        setOutputText('')
+        let languageCode = languageRef.current.getValue()
+        if (languageRef.current.getValue() === "auto") {
+            detect(inputText, (languageCode) => {
+                let text = "**" + codeToLanguage(languageCode) + "** detected";
+                setOutputText(<Markdown>{text}</Markdown>)
+                performCorrection(languageCode)
+            }, (error) => {
+                setOutputText("Detecting rrror: " + error)
+            })
+        }
+        else{
+            performCorrection(languageCode)
+        }
     };
 
     let correctionTypeOptions = [
