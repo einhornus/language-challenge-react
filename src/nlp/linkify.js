@@ -51,6 +51,16 @@ const createRubyElements = (tokens, alignment, handleClick) => {
         let sentence = tokenArray.map(t => t.text).join('')
 
         while (currentTokenIndex < tokenArray.length) {
+            if (tokenArray[currentTokenIndex] === undefined) {
+                continue
+            }
+
+            if (tokenArray[currentTokenIndex].text === "\n") {
+                currentTokenIndex += 1
+                jsxElements.push(<br/>)
+                continue
+            }
+
             if (tokenArray[currentTokenIndex].text === " ") {
                 jsxElements.push(" ");
                 currentTokenIndex += 1
@@ -70,14 +80,19 @@ const createRubyElements = (tokens, alignment, handleClick) => {
                                 words: tokenArray.map(t => t.text),
                                 index: q + currentTokenIndex,
                             }
-                            let elements = <a
-                                href="#"
-                                onClick={(event) => handleClick(event, wordInContext)}
-                                className="link"
-                            >
-                                {t[q].text}
-                            </a>
-                            stuff.push(elements)
+
+                            if (t[q] === undefined || t[q].text === "\n") {
+                                stuff.push(<br/>)
+                            } else {
+                                let elements = <a
+                                    href="#"
+                                    onClick={(event) => handleClick(event, wordInContext)}
+                                    className="link"
+                                >
+                                    {t[q].text}
+                                </a>
+                                stuff.push(elements)
+                            }
                         }
 
                         found =
@@ -108,7 +123,11 @@ const createRubyElements = (tokens, alignment, handleClick) => {
                         {tokenArray[currentTokenIndex].text}
                     </a>
 
-                    jsxElements.push(element);
+                    if (tokenArray[currentTokenIndex] === undefined || tokenArray[currentTokenIndex].text === "\n") {
+                        jsxElements.push(<br/>)
+                    } else {
+                        jsxElements.push(element);
+                    }
                     currentTokenIndex += 1
                 } else {
                     jsxElements.push(found)
