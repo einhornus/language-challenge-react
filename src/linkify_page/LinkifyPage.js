@@ -3,9 +3,11 @@ import './LinkifyPage.css';
 import LanguageSelector from "../common_components/selectors/LanguageSelector"
 import Selector from "../common_components/selectors/Selector"
 import translate from "./../nlp/translate"
-import {linkify, getArticle, linkify2} from "./../nlp/linkify"
+import {linkify, getArticle, linkify2, linkifyMarkdown} from "./../nlp/linkify"
 import "./../common_components/common.css"
 import Chat from "./../common_components/chat/Chat.js"
+import {useLocation} from 'react-router-dom'; // import useLocation hook
+
 import {
     setSettingsTargetLanguage,
     getSettingsTargetLanguage,
@@ -22,18 +24,25 @@ import {
 } from "./../settings_manager/settings.js"
 
 import {getBalance} from "../auth/SignInPage";
-import chat from "./../common_components/chat/Chat.js";
 import {codeToLanguage} from "../nlp/language_utils";
 import {callGPT4} from "../gpt4/api";
 
+
 const LinkifyPage = () => {
-    const [inputText, setInputText] = useState('');
     const [doGrammarExplanations, setDoGrammarExplanations] = useState(getSettingsDoProvideGrammarExplanations());
     const [linkifiedText, setLinkifiedText] = useState(<p></p>);
     const chatRef = useRef(null);
     const [discussedWord, setDiscussedWord] = useState('');
+    const [article, setArticle] = useState('');
     const [balance, setBalance] = useState(0);
     const useGPT4Ref = useRef(null);
+
+    const location = useLocation();
+    const searchParams = new URLSearchParams(location.search);
+    const isSimplified = searchParams.get("simplified") === "1"
+    const startingInput = searchParams.get("text") ? searchParams.get("text") : ""
+    const [inputText, setInputText] = useState(startingInput);
+
 
     useEffect(() => {
         getBalance(getSettingsLogin(), getSettingsPassword(), (balance) => {
@@ -45,6 +54,14 @@ const LinkifyPage = () => {
                 window.location.assign("/?from=correct");
             }
         });
+
+        if (isSimplified) {
+            const words = searchParams.get("words") ? searchParams.get("words").split("~") : []
+            const index = searchParams.get("index") ? parseInt(searchParams.get("index")) : 0
+            const word = words[index]
+            const woc = {"word": word, "index": index, "words": words}
+            explainWord(woc)
+        }
     }, []);
 
     let useGPT4Options = [
@@ -73,11 +90,13 @@ const LinkifyPage = () => {
     }
 
     function explainWord(woc) {
-        if(chatRef.current.ghostMessage !== null){
+        if (chatRef.current.ghostMessage !== null) {
             return
         }
 
         let header = "Word: **" + woc["word"] + "** \n\n"
+
+        /*
         header += "Context: "
         for (let i = 0; i < woc["words"].length; i++) {
             if (i === woc["index"]) {
@@ -86,23 +105,41 @@ const LinkifyPage = () => {
                 header += woc["words"][i]
             }
         }
+         */
         header += "\n\n"
         let tl = getSettingsTargetLanguage()
         let nl = getSettingsNativeLanguage()
         chatRef.current.cleanMessages();
 
         getArticle(woc["words"], woc["index"], tl, nl, (res) => {
+                let new_res = res.replaceAll("[", "").replaceAll("]", "")
+                /*
+                if (new_res.indexOf("<details>") !== -1 && new_res.indexOf("</details>") === -1) {
+                    new_res = new_res + "</details>"
+                }
+                */
                 chatRef.current.setGhostMessage({
                     "role": "assistant",
-                    "content": header + res
+                    "content": header + new_res
                 })
             },
             (res) => {
-                chatRef.current.setGhostMessage(null);
-                chatRef.current.addMessage({
-                    "role": "assistant",
-                    "content": header + res
-                })
+                setArticle(res)
+                linkifyMarkdown(res, getSettingsTargetLanguage(), (res) => {
+                        chatRef.current.setGhostMessage(null);
+                        chatRef.current.addMessage({
+                            "role": "assistant",
+                            "content": header + res
+                        })
+                        setDiscussedWord(woc["word"])
+                    }, (err) => {
+                        chatRef.current.setGhostMessage(null);
+                        chatRef.current.addMessage({
+                            "role": "assistant",
+                            "content": header + res
+                        })
+                    }
+                )
 
                 getBalance(getSettingsLogin(), getSettingsPassword(), (balance) => {
                     setBalance(balance);
@@ -173,6 +210,7 @@ const LinkifyPage = () => {
         if (arguments[0].content === "/reset") {
             chatRef.current.cleanMessages();
             setDiscussedWord('')
+            setArticle('')
             return
         }
 
@@ -214,10 +252,12 @@ const LinkifyPage = () => {
         let messages = chatRef.current.getMessages();
         for (let i = 0; i < messages.length; i++) {
             if (messages[i].content.indexOf("/gen") !== 0) {
-                prompt.push({
-                    "role": messages[i].role,
-                    "content": messages[i].content
-                })
+                if(i === 0 && messages[i].content.indexOf("<strong>") !== -1) {
+                    prompt.push({
+                        "role": messages[i].role,
+                        "content": article
+                    })
+                }
             }
         }
 
@@ -227,7 +267,8 @@ const LinkifyPage = () => {
                 "content": "You are the most professional " + codeToLanguage(getSettingsTargetLanguage()) + " language tutor.\n" +
                     "Please only tell the information you know for sure, and do not guess.\n" +
                     "If you don't know the answer, please say 'I don't know'.\n" +
-                    "Your student prefers to speak in " + codeToLanguage(getSettingsNativeLanguage()) + "."
+                    "Your student prefers to speak in " + codeToLanguage(getSettingsNativeLanguage()) + ".\n" +
+                    "Please always enclose " + codeToLanguage(getSettingsTargetLanguage()) + " words, phrases and sentences in square brackets: [word/phrase/sentence]\n"
             })
         } else {
             prompt.push({
@@ -235,7 +276,8 @@ const LinkifyPage = () => {
                 "content": "You are the most professional " + codeToLanguage(getSettingsTargetLanguage()) + " language tutor.\n" +
                     "You are discussing the word **" + discussedWord + "** with your student.\n" +
                     "Please only tell the information you know for sure, and do not guess.\n" +
-                    "If you don't know the answer, please say 'I don't know'.\n"
+                    "If you don't know the answer, please say 'I don't know'.\n" +
+                    "Please always enclose " + codeToLanguage(getSettingsTargetLanguage()) + " words, phrases and sentences in square brackets: [word/phrase/sentence]\n"
             })
         }
 
@@ -245,21 +287,30 @@ const LinkifyPage = () => {
         })
 
         callGPT4(prompt, 0, 1000, (res) => {
-                chatRef.current.setGhostMessage(null);
-                chatRef.current.addMessage({
-                    "role": "assistant",
-                    "content": res
-                })
+                linkifyMarkdown(res, getSettingsTargetLanguage(), (res) => {
+                        chatRef.current.setGhostMessage(null);
+                        chatRef.current.addMessage({
+                            "role": "assistant",
+                            "content": res
+                        })
 
-                getBalance(getSettingsLogin(), getSettingsPassword(), (balance) => {
-                    setBalance(balance);
-                }, (error) => {
-                    alert(error);
-                });
+                        getBalance(getSettingsLogin(), getSettingsPassword(), (balance) => {
+                            setBalance(balance);
+                        }, (error) => {
+                            alert(error);
+                        });
+                    }, (err) => {
+                        chatRef.current.setGhostMessage(null);
+                        chatRef.current.addMessage({
+                            "role": "assistant",
+                            "content": res
+                        })
+                    }
+                )
             }, (res) => {
                 chatRef.current.setGhostMessage({
                     "role": "assistant",
-                    "content": res
+                    "content": res.replaceAll("[", "").replaceAll("]", "")
                 })
             },
             (err) => {
@@ -271,47 +322,66 @@ const LinkifyPage = () => {
     }
 
 
-    return (
-        <div className="linkify-page">
-            <div className="linkify-page-controls">
-                <button onClick={handleLinkify}>Linkify</button>
-                <LanguageSelector title={"Target language"} onLanguageSelect={onTargetLanguageSelect} isSorted={true}
-                                  isEnglish={true} defaultLanguage={getSettingsTargetLanguage()}></LanguageSelector>
+    if (!isSimplified) {
+        return (
+            <div className="linkify-page">
+                <div className="linkify-page-controls">
+                    <button onClick={handleLinkify}>Linkify</button>
+                    <LanguageSelector title={"Target language"} onLanguageSelect={onTargetLanguageSelect}
+                                      isSorted={true}
+                                      isEnglish={true} defaultLanguage={getSettingsTargetLanguage()}></LanguageSelector>
 
-                <LanguageSelector title={"Native language"} onLanguageSelect={onNativeLanguageSelect} isSorted={true}
-                                  isEnglish={true} defaultLanguage={getSettingsNativeLanguage()}></LanguageSelector>
+                    <LanguageSelector title={"Native language"} onLanguageSelect={onNativeLanguageSelect}
+                                      isSorted={true}
+                                      isEnglish={true} defaultLanguage={getSettingsNativeLanguage()}></LanguageSelector>
 
-                <Selector ref={useGPT4Ref} title={"Use GPT-4"} onSelect={onUseGPT4Select}
-                          options={useGPT4Options}
-                          defaultValue={getSettingsDoUseGPT4()}></Selector>
+                    <Selector ref={useGPT4Ref} title={"Use GPT-4"} onSelect={onUseGPT4Select}
+                              options={useGPT4Options}
+                              defaultValue={getSettingsDoUseGPT4()}></Selector>
 
-                <Selector title={'Explain grammar'} onSelect={onExplainGrammarPolicySelect}
-                          options={explainGrammarSelectorContent}
-                          defaultValue={getSettingsDoProvideGrammarExplanations()}></Selector>
+                    <Selector title={'Explain grammar'} onSelect={onExplainGrammarPolicySelect}
+                              options={explainGrammarSelectorContent}
+                              defaultValue={getSettingsDoProvideGrammarExplanations()}></Selector>
 
-                <div>
-                    {getSettingsLogin()}<br></br>{balance}💰
+                    <div>
+                        {getSettingsLogin()}<br></br>{balance}💰
+                    </div>
                 </div>
-            </div>
 
-            <div className="linkify-page-container">
-                <div className="linkify-page-input">
+                <div className="linkify-page-container">
+                    <div className="linkify-page-input">
                     <textarea
                         value={inputText}
                         onChange={(e) => setInputText(e.target.value)}
                         placeholder="Enter the text to linkify"
                     />
-                </div>
-                <div className="linkify-page-output">
-                    {linkifiedText}
-                </div>
-                <div className="linkify-page-chat">
-                    <Chat ref={chatRef} onUserMessage={handleUserChatMessage}></Chat>
+                    </div>
+                    <div className="linkify-page-output">
+                        {linkifiedText}
+                    </div>
+                    <div className="linkify-page-chat">
+                        <Chat ref={chatRef} onUserMessage={handleUserChatMessage}></Chat>
+                    </div>
                 </div>
             </div>
+        );
+    } else {
+        return (
+            <div className="linkify-page">
+                <div className="linkify-page-controls">
+                    <div>
+                        {getSettingsLogin()}<br></br>{balance}💰
+                    </div>
+                </div>
 
-        </div>
-    );
+                <div className="linkify-page-container">
+                    <div className="linkify-page-chat">
+                        <Chat ref={chatRef} onUserMessage={handleUserChatMessage}></Chat>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 };
 
 export default LinkifyPage;

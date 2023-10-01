@@ -26,6 +26,8 @@ function tokenize(text, onResponse, onError) {
         });
 }
 
+
+
 function tokenizeLocal(text, languageCode = "en", granularity = 'word') {
     const segmenter = new Intl.Segmenter(languageCode, {granularity: granularity});
     const segments = segmenter.segment(text);
@@ -35,5 +37,7 @@ function tokenizeLocal(text, languageCode = "en", granularity = 'word') {
     }
     return words;
 }
+
+
 
 export {tokenize, tokenizeLocal};

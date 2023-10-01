@@ -146,69 +146,58 @@ function linkify(text, tl, nl, clickHandler, onPartialResponse, onFullResponse, 
         clickHandler(woc)
     };
 
+    tokenize(text,
+        (tokens) => {
+            onPartialResponse(
+                <div>
+                    <p>{text}</p>
+                    <p>Translating...</p>
+                </div>
+            )
 
-    axios.post(process.env.REACT_APP_SERVER_URL + "/tokenize", {
-        email: getSettingsLogin(),
-        password: getSettingsPassword(),
-        text: text,
-    }).then((response) => {
-        if (response.status !== 200) {
-            onError("Error tokenizing")
-            return
-        }
+            translate(text, tl, nl,
+                (res) => {
+                    onPartialResponse(
+                        <div>
+                            <p>{text}</p>
+                            <p>{res}</p>
+                            <p>Aligning...</p>
+                        </div>
+                    )
 
-        let tokens = response.data["tokens"]
+                    console.log("Translation", res)
 
-        onPartialResponse(
-            <div>
-                <p>{text}</p>
-                <p>Translating...</p>
-            </div>
-        )
-
-        translate(text, tl, nl,
-            (res) => {
-                onPartialResponse(
-                    <div>
-                        <p>{text}</p>
-                        <p>{res}</p>
-                        <p>Aligning...</p>
-                    </div>
-                )
-
-                console.log("Translation", res)
-
-                axios.post(process.env.REACT_APP_SERVER_URL + "/align", {
-                    email: getSettingsLogin(),
-                    password: getSettingsPassword(),
-                    text: text,
-                    translation: res
-                }).then((response) => {
-                    if (response.status === 200) {
-                        let data = response.data
-                        if (data["status"] === "ok") {
-                            console.log("Alignment", data["alignment"])
-                            console.log("Tokens", tokens)
-                            onFullResponse(
-                                createRubyElements(tokens, data["alignment"], handleClick)
-                            )
+                    axios.post(process.env.REACT_APP_SERVER_URL + "/align", {
+                        email: getSettingsLogin(),
+                        password: getSettingsPassword(),
+                        text: text,
+                        translation: res
+                    }).then((response) => {
+                        if (response.status === 200) {
+                            let data = response.data
+                            if (data["status"] === "ok") {
+                                console.log("Alignment", data["alignment"])
+                                console.log("Tokens", tokens)
+                                onFullResponse(
+                                    createRubyElements(tokens, data["alignment"], handleClick)
+                                )
+                            } else {
+                                onError(data["error"])
+                            }
                         } else {
-                            onError(data["error"])
+                            onError("Error aligning")
                         }
-                    } else {
+                    }).catch((error) => {
                         onError("Error aligning")
-                    }
-                }).catch((error) => {
-                    onError("Error aligning")
-                })
-            },
-            (res) => {
-                onError("Error translating")
-            }
-        )
-    }).catch((error) => {
+                    })
+                },
+                (res) => {
+                    onError("Error translating")
+                }
+            )
+        },
         onError("Error tokenizing")
-    })
+    )
 }
 
 
@@ -217,16 +206,6 @@ function linkify2(text, tl, nl, clickHandler, onPartialResponse, onFullResponse,
         event.preventDefault();
         clickHandler(woc)
     };
-
-
-    /*
-    tokenize(text, (tokens) => {
-        console.log("Tokens", tokens)
-    }, (error) => {
-        return <p>{error}</p>
-    })
-    */
-
 
     let sentences = tokenizeLocal(text, tl, 'sentence');
     let wordsInContext = []
@@ -269,4 +248,33 @@ function linkify2(text, tl, nl, clickHandler, onPartialResponse, onFullResponse,
 }
 
 
-export {getArticle, linkify, linkify2};
+function linkifyMarkdown(text, tl, onResponse, onError) {
+    axios.post(process.env.REACT_APP_SERVER_URL + "/linkify", {
+        text: text,
+        lang: tl,
+        format: "markdown"
+    })
+        .then((response) => {
+            if (response.status === 200) {
+                let data = response.data;
+                if (data["status"] === "ok") {
+                    onResponse(data["linkified"])
+                } else {
+                    onError(data["error"])
+                }
+            } else {
+                onError(response.status.toString())
+            }
+        })
+        .catch((error) => {
+            if (error.response && error.response.status === 500) {
+                onError("Server error");
+            } else {
+                // Handle any other errors here
+                onError("Unexpected error");
+            }
+        });
+}
+
+
+export {getArticle, linkify, linkify2, linkifyMarkdown};
