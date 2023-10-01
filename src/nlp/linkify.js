@@ -252,7 +252,7 @@ function linkifyMarkdown(text, tl, onResponse, onError) {
     axios.post(process.env.REACT_APP_SERVER_URL + "/linkify", {
         text: text,
         lang: tl,
-        format: "markdown"
+        format: "html"
     })
         .then((response) => {
             if (response.status === 200) {

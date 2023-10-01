@@ -1,20 +1,35 @@
 import {codeToLanguage} from "./language_utils";
 
+let markingBegin = "**";
+let markingEnd = "**";
+
 let examples = [
     {
         "targetLanguage": "ru",
         "nativeLanguage": "en",
         "sentence": "Я **снял** 1000 долларов с банковского счета",
         "word": "снял",
-        "output": "Meaning: [Я **снял** 1000 долларов ...] = (I have **withdrawn** 1000 dollars ...)\n\n" +
-            "The dictionary form of [**снял**] is [**снять**]\n\n" +
-            "[**снять**] (verb, perfective, corresponding imperfective verb is [снимать]):\n\n" +
-            "1. to take off: [Я **снял** куртку] (I **took off** my jacket)\n" +
-            "2. to take down: [Мы вчера **сняли** котёнка с дерева] (Yesterday we **took** a kitten **down** the tree)\n" +
-            "3. to withdraw (money): [Я **снял** деньги] (I have **withdrawn** the money)\n" +
-            "4. to film: [Они **сняли** видео] (They **filmed** a video)\n" +
-            "5. to rent (housing; also a prostitute): [Мы **сняли** квартиру в Москве] (We **rented** an apartment in Moscow)\n\n" +
-            "Related words: [**снятие**] (withdrawal), [**съёмка**] (filming), [**съёмный**] (rented)\n\n"
+        "output": "Meaning: [Я <mark>снял<mark> 1000 долларов ...] = (I have <mark>withdrawn</mark> 1000 dollars ...)\n\n" +
+            "The dictionary form of [снял] is [снять]\n\n" +
+            "[снять] (verb, perfective):\n\n" +
+            "1. to take off: [Я <mark>снял</mark> куртку] (I <mark>took off</mark> my jacket)\n" +
+            "2. to take down: [Мы вчера <mark>сняли</mark> котёнка с дерева] (Yesterday we <mark>took</mark> a kitten <mark>down</mark> the tree)\n" +
+            "3. to withdraw (money): [Я <mark>снял</mark> деньги] (I have <mark>withdrawn</mark> the money)\n" +
+            "4. to film: [Они <mark>сняли</mark> видео] (They <mark>filmed</mark> a video)\n" +
+            "5. to rent (housing; also a prostitute): [Мы <mark>сняли</mark> квартиру в Москве] (We rented</mark> an apartment in Moscow)\n\n" +
+            "Related words: [снимать] (same but imperfective), [снятие] (withdrawal), [съёмка] (filming), [съёмный] (rented)"
+    },
+    {
+        "targetLanguage": "ru",
+        "nativeLanguage": "en",
+        "sentence": "Ко мне подошла **маленькая** девочка и попросила автограф",
+        "word": "маленькая",
+        "output": "Meaning: [Ко мне подошла <mark>маленькая</mark> девочка ...] = (A <mark>young</mark> girl approached me ...)<br>" +
+            "The dictionary form of [маленькая] is [маленький]<br>" +
+            "[маленький] (adjective):<br>" +
+            "1. small, little: [<mark>маленький</mark> дом] (a <mark>small</mark> house)<br>" +
+            "2. young: [<mark>маленький</mark> ребенок] (a <mark>young</mark> child)<br>" +
+            "Related words: [малый] (small, minor)<br>"
     },
     {
         "targetLanguage": "en",
@@ -54,6 +69,17 @@ function makeLinkifyPrompt(sentence, index, targetLanguage, nativeLanguage) {
         "Your reply should be mostly in " + codeToLanguage(nativeLanguage) + "\n" +
         "Enclose " + codeToLanguage(targetLanguage) + " words, phrases and sentences in square brackets: [word/phrase/sentence]\n"
 
+
+
+    if (markingBegin !== "") {
+        if (markingBegin !== markingEnd) {
+            systemMessage += "\nEnclose the word " + sentence[index] + " and its translation into " + markingBegin + " and " + markingEnd + " tags: " + markingBegin + sentence[index] + markingEnd
+        } else {
+            systemMessage += "\nEnclose the word " + sentence[index] + " and its translation into " + markingBegin + " tags: " + markingBegin + sentence[index] + markingEnd
+        }
+    }
+
+
     let prompt = []
     let relevantExamples = []
 
@@ -72,7 +98,7 @@ function makeLinkifyPrompt(sentence, index, targetLanguage, nativeLanguage) {
             })
             relevantExamples.push({
                 "role": "system",
-                "content": example.output,
+                "content": example.output.replaceAll("<mark>", markingBegin).replaceAll("</mark>", markingEnd),
                 "name": "example_assistant"
             })
         }
