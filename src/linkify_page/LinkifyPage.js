@@ -132,6 +132,12 @@ const LinkifyPage = () => {
                             "content": header + res
                         })
                         setDiscussedWord(woc["word"])
+
+                        getBalance(getSettingsLogin(), getSettingsPassword(), (balance) => {
+                            setBalance(balance);
+                        }, (error) => {
+                            alert(error);
+                        });
                     }, (err) => {
                         chatRef.current.setGhostMessage(null);
                         chatRef.current.addMessage({
@@ -140,12 +146,6 @@ const LinkifyPage = () => {
                         })
                     }
                 )
-
-                getBalance(getSettingsLogin(), getSettingsPassword(), (balance) => {
-                    setBalance(balance);
-                }, (error) => {
-                    alert(error);
-                });
 
                 setDiscussedWord(woc["word"])
             },
@@ -252,7 +252,7 @@ const LinkifyPage = () => {
         let messages = chatRef.current.getMessages();
         for (let i = 0; i < messages.length; i++) {
             if (messages[i].content.indexOf("/gen") !== 0) {
-                if(i === 0 && messages[i].content.indexOf("<strong>") !== -1) {
+                if (i === 0 && messages[i].content.indexOf("<strong>") !== -1) {
                     prompt.push({
                         "role": messages[i].role,
                         "content": article
