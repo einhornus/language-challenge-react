@@ -10,8 +10,7 @@ let examples = [
         "sentence": "Я **снял** 1000 долларов с банковского счета",
         "word": "снял",
         "output": "Значение: [Я <mark>снял<mark> 1000 долларов ...] = (I have <mark>withdrawn</mark> 1000 dollars ...)\n<br>" +
-            "Dictionary form: [снять]\n<br>" +
-            "[снять] ([глагол, совершенный вид]):\n<br>" +
+            "Dictionary form: [снять] ([глагол, совершенный вид])\n<br>" +
             "1. [освободиться от одежды]: [Я <mark>снял</mark> куртку]\n<br>" +
             "2. [спустить]: [Мы вчера <mark>сняли</mark> котёнка с дерева]\n<br>" +
             "3. [получить деньги]: [Я <mark>снял</mark> деньги]\n<br>" +
@@ -25,8 +24,7 @@ let examples = [
         "sentence": "Ко мне подошла **маленькая** девочка и попросила автограф",
         "word": "маленькая",
         "output": "[Значение]: [Ко мне подошла <mark>маленькая</mark> девочка ...] = (A <mark>young</mark> girl approached me ...)\n<br>" +
-            "Dictionary form: [маленький]\n<br>" +
-            "[маленький] ([прилагательное]):\n<br>" +
+            "Dictionary form: [[маленький] ([прилагательное])\n<br>" +
             "1. [небольшой]: [<mark>маленький</mark> дом]\n<br>" +
             "2. [юный]: [<mark>маленький</mark> ребенок]\n<br>" +
             "[См. также]: [Малая медведица] ([созвездие] Ursa Minor)"
@@ -37,8 +35,7 @@ let examples = [
         "sentence": "Я **снял** 1000 долларов с банковского счета",
         "word": "снял",
         "output": "Meaning: [Я <mark>снял<mark> 1000 долларов ...] = (I have <mark>withdrawn</mark> 1000 dollars ...)\n\n" +
-            "The dictionary form of [снял] is [снять]\n\n" +
-            "[снять] (verb, perfective):\n\n" +
+            "The dictionary form of [снял] is [снять] (verb, perfective)\n\n" +
             "1. to take off: [Я <mark>снял</mark> куртку] (I <mark>took off</mark> my jacket)\n" +
             "2. to take down: [Мы вчера <mark>сняли</mark> котёнка с дерева] (Yesterday we <mark>took</mark> a kitten <mark>down</mark> the tree)\n" +
             "3. to withdraw (money): [Я <mark>снял</mark> деньги] (I have <mark>withdrawn</mark> the money)\n" +
@@ -52,8 +49,7 @@ let examples = [
         "sentence": "Ко мне подошла **маленькая** девочка и попросила автограф",
         "word": "маленькая",
         "output": "Meaning: [Ко мне подошла <mark>маленькая</mark> девочка ...] = (A <mark>young</mark> girl approached me ...)<br>" +
-            "The dictionary form of [маленькая] is [маленький]<br>" +
-            "[маленький] (adjective):<br>" +
+            "The dictionary form of [маленькая] is [маленький] (adjective)<br>" +
             "1. small, little: [<mark>маленький</mark> дом] (a <mark>small</mark> house)<br>" +
             "2. young: [<mark>маленький</mark> ребенок] (a <mark>young</mark> child)<br>" +
             "Related words: [малый] (small, minor)<br>"
