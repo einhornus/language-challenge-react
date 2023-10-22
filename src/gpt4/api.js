@@ -4,10 +4,8 @@ import {Configuration, OpenAIApi} from 'openai';
 import {getSettingsLogin, getSettingsPassword, getSettingsModel} from "../settings_manager/settings";
 
 
-async function callGPT4(messages, temperature, max_tokens, onFullResult, onPartialResult, onError) {
-    let model = getSettingsModel()
-
-    console.log("Calling GPT4 with model: ", model, " and messages: ")
+async function callGPT4(model, messages, temperature, max_tokens, onFullResult, onPartialResult, onError) {
+    console.log("Calling GPT with model: ", model, " and messages: ")
     console.log(messages)
 
     let l = getSettingsLogin()

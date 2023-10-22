@@ -20,7 +20,7 @@ import {
     getSettingsLogin,
     getSettingsPassword,
     getSettingsSignedUp,
-    getSettingsDoUseGPT4, setSettingsDoUseGPT4
+    getSettingsDoUseGPT4, setSettingsDoUseGPT4, getSettingsModel
 } from "./../settings_manager/settings.js"
 
 import {getBalance} from "../auth/SignInPage";
@@ -95,29 +95,13 @@ const LinkifyPage = () => {
         }
 
         let header = "Word: **" + woc["word"] + "** \n\n"
-
-        /*
-        header += "Context: "
-        for (let i = 0; i < woc["words"].length; i++) {
-            if (i === woc["index"]) {
-                header += "**" + woc["words"][i] + "**"
-            } else {
-                header += woc["words"][i]
-            }
-        }
-         */
         header += "\n\n"
         let tl = getSettingsTargetLanguage()
         let nl = getSettingsNativeLanguage()
         chatRef.current.cleanMessages();
 
         getArticle(woc["words"], woc["index"], tl, nl, (res) => {
-                let new_res = res.replaceAll("[", "").replaceAll("]", "")
-                /*
-                if (new_res.indexOf("<details>") !== -1 && new_res.indexOf("</details>") === -1) {
-                    new_res = new_res + "</details>"
-                }
-                */
+                let new_res = res.replaceAll("[", "").replaceAll("]", "").replaceAll(" - ", " — ")
                 chatRef.current.setGhostMessage({
                     "role": "assistant",
                     "content": header + new_res
@@ -231,7 +215,7 @@ const LinkifyPage = () => {
                 }
             ]
 
-            callGPT4(prompt, 1, 1000, (res) => {
+            callGPT4(getSettingsModel(), prompt, 1, 1000, (res) => {
                     setInputText(res)
                     getBalance(getSettingsLogin(), getSettingsPassword(), (balance) => {
                         setBalance(balance);
@@ -286,7 +270,7 @@ const LinkifyPage = () => {
             "content": arguments[0].content
         })
 
-        callGPT4(prompt, 0, 1000, (res) => {
+        callGPT4(getSettingsModel(), prompt, 0, 1000, (res) => {
                 linkifyMarkdown(res, getSettingsTargetLanguage(), (res) => {
                         chatRef.current.setGhostMessage(null);
                         chatRef.current.addMessage({
@@ -310,7 +294,7 @@ const LinkifyPage = () => {
             }, (res) => {
                 chatRef.current.setGhostMessage({
                     "role": "assistant",
-                    "content": res.replaceAll("[", "").replaceAll("]", "")
+                    "content": res.replaceAll("[", "").replaceAll("]", "").replaceAll(" - ", " — ")
                 })
             },
             (err) => {

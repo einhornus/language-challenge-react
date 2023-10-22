@@ -384,7 +384,7 @@ function correct(message, correctionType, doUseGPT4, language, onPartialResponse
     )
 
 
-    callGPT4(prompt, 0, -1,
+    callGPT4(getSettingsModel(), prompt, 0, -1,
         (response) => {
             let comparison = compareText(message, response)
             let res = comparison

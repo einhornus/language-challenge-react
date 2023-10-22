@@ -11,7 +11,7 @@ function getSettingsNativeLanguage() {
 function getSettingsTargetLanguage() {
     let val = Cookies.get('targetLanguage');
     if (val === undefined) {
-        return "en";
+        return "ru";
     }
     return val
 }
@@ -51,7 +51,7 @@ function getSettingsDoProvideGrammarExplanations() {
 function getSettingsDoUseGPT4() {
     let val = Cookies.get('doUseGPT4');
     if (val === undefined) {
-        return "no";
+        return "yes";
     }
     return val
 }

@@ -2,15 +2,43 @@ import {callGPT4} from "./../gpt4/api.js"
 import {codeToLanguage} from "./language_utils";
 import './styles.css';
 import {romanize} from "./romanize.js";
-import {getSettingsDoUseGPT4, getSettingsLogin, getSettingsPassword} from "../settings_manager/settings";
+import {
+    getSettingsDoUseGPT4,
+    getSettingsLogin,
+    getSettingsModel,
+    getSettingsPassword
+} from "../settings_manager/settings";
 import {makeLinkifyPrompt} from "./linkify_prompt";
 import {translate} from "./translate";
 import axios from "axios";
 import {tokenize, tokenizeLocal} from "./tokenize";
 
+
+function getWiktionaryContext(word, language, onSuccess, onFailure) {
+    axios.get(`${process.env.REACT_APP_SERVER_URL}/wiktionary?word=${word}&lang=${language}`)
+        .then(response => {
+            console.log(response.data);
+            if (response.data["status"] === "ok") {
+                onSuccess(response.data["wiktionary_context"]);
+            } else {
+                onFailure(response.data["error"])
+            }
+        })
+        .catch(error => {
+            onFailure(error)
+        });
+}
+
 function getArticle(sentence, index, targetLanguage, nativeLanguage, onPartialResponse, onFullResponse, onError) {
-    prompt = makeLinkifyPrompt(sentence, index, targetLanguage, nativeLanguage)
-    callGPT4(prompt, 0, 1000, onFullResponse, onPartialResponse, onError);
+    getWiktionaryContext(sentence[index], targetLanguage, (wiktionaryContext) => {
+            let model = getSettingsModel();
+            //if (wiktionaryContext !== "") {
+            //    model = "gpt-3.5-turbo"
+            //}
+            prompt = makeLinkifyPrompt(wiktionaryContext, sentence, index, targetLanguage, nativeLanguage)
+            callGPT4(model, prompt, 0, 1000, onFullResponse, onPartialResponse, onError);
+        }
+        , onError)
 }
 
 const findAlignmentText = (tokensArray, alignment) => {

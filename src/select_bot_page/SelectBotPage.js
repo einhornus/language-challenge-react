@@ -11,7 +11,6 @@ class SelectBoxPage extends Component {
             chatbots: [],
             selectedChatbotId: null,
         };
-
         this.handleChange = this.handleChange.bind(this);
         this.handleTargetLanguageSelect = this.handleTargetLanguageSelect.bind(this);
         this.handleNativeLanguageSelect = this.handleNativeLanguageSelect.bind(this);
