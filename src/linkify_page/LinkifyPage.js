@@ -3,7 +3,7 @@ import './LinkifyPage.css';
 import LanguageSelector from "../common_components/selectors/LanguageSelector"
 import Selector from "../common_components/selectors/Selector"
 import translate from "./../nlp/translate"
-import {linkify, getArticle, linkify2, linkifyMarkdown} from "./../nlp/linkify"
+import {getArticle, linkify2, linkifyMarkdown} from "./../nlp/linkify"
 import "./../common_components/common.css"
 import Chat from "./../common_components/chat/Chat.js"
 import {useLocation} from 'react-router-dom'; // import useLocation hook
@@ -13,10 +13,6 @@ import {
     getSettingsTargetLanguage,
     getSettingsNativeLanguage,
     setSettingsNativeLanguage,
-    getSettingsTransliterationPolicy,
-    setSettingsTransliterationPolicy,
-    setSettingsDoProvideGrammarExplanations,
-    getSettingsDoProvideGrammarExplanations,
     getSettingsLogin,
     getSettingsPassword,
     getSettingsSignedUp,
@@ -29,7 +25,6 @@ import {callGPT4} from "../gpt4/api";
 
 
 const LinkifyPage = () => {
-    const [doGrammarExplanations, setDoGrammarExplanations] = useState(getSettingsDoProvideGrammarExplanations());
     const [linkifiedText, setLinkifiedText] = useState(<p></p>);
     const chatRef = useRef(null);
     const [discussedWord, setDiscussedWord] = useState('');
@@ -83,11 +78,6 @@ const LinkifyPage = () => {
         setSettingsDoUseGPT4(val)
     }
 
-    function onExplainGrammarPolicySelect(policy) {
-        console.log("Explain grammar policy: " + policy)
-        setDoGrammarExplanations(policy)
-        setSettingsDoProvideGrammarExplanations(policy)
-    }
 
     function explainWord(woc) {
         if (chatRef.current.ghostMessage !== null) {
@@ -148,41 +138,21 @@ const LinkifyPage = () => {
     }
 
     const handleLinkify = () => {
-        console.log("Grammar:", getSettingsDoProvideGrammarExplanations())
-
-        if (getSettingsDoProvideGrammarExplanations() === "no") {
-            linkify2(inputText, getSettingsTargetLanguage(), getSettingsNativeLanguage(),
-                explainWord,
-                (res) => {
-                    setLinkifiedText(res)
-                },
-                (res) => {
-                    setLinkifiedText(res)
-                    getBalance(getSettingsLogin(), getSettingsPassword(), (balance) => {
-                        setBalance(balance);
-                    }, (error) => {
-                        alert(error);
-                    });
-                },
-                (err) => setLinkifiedText("Error: " + err),
-            )
-        } else {
-            linkify(inputText, getSettingsTargetLanguage(), getSettingsNativeLanguage(),
-                explainWord,
-                (res) => {
-                    setLinkifiedText(res)
-                },
-                (res) => {
-                    setLinkifiedText(res)
-                    getBalance(getSettingsLogin(), getSettingsPassword(), (balance) => {
-                        setBalance(balance);
-                    }, (error) => {
-                        alert(error);
-                    });
-                },
-                (err) => setLinkifiedText("Error: " + err),
-            )
-        }
+        linkify2(inputText, getSettingsTargetLanguage(), getSettingsNativeLanguage(),
+            explainWord,
+            (res) => {
+                setLinkifiedText(res)
+            },
+            (res) => {
+                setLinkifiedText(res)
+                getBalance(getSettingsLogin(), getSettingsPassword(), (balance) => {
+                    setBalance(balance);
+                }, (error) => {
+                    alert(error);
+                });
+            },
+            (err) => setLinkifiedText("Error: " + err),
+        )
     };
 
     const explainGrammarSelectorContent = [
@@ -322,10 +292,6 @@ const LinkifyPage = () => {
                     <Selector ref={useGPT4Ref} title={"Use GPT-4"} onSelect={onUseGPT4Select}
                               options={useGPT4Options}
                               defaultValue={getSettingsDoUseGPT4()}></Selector>
-
-                    <Selector title={'Explain grammar'} onSelect={onExplainGrammarPolicySelect}
-                              options={explainGrammarSelectorContent}
-                              defaultValue={getSettingsDoProvideGrammarExplanations()}></Selector>
 
                     <div>
                         {getSettingsLogin()}<br></br>{balance}💰

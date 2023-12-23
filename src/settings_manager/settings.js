@@ -32,21 +32,6 @@ function getSettingsCorrectionType() {
     return val
 }
 
-function getSettingsTransliterationPolicy() {
-    let val = Cookies.get('transliterationPolicy');
-    if (val === undefined) {
-        return "no";
-    }
-    return val
-}
-
-function getSettingsDoProvideGrammarExplanations() {
-    let val = Cookies.get('doProvideGrammarExplanations');
-    if (val === undefined) {
-        return "no";
-    }
-    return val
-}
 
 function getSettingsDoUseGPT4() {
     let val = Cookies.get('doUseGPT4');
@@ -84,10 +69,6 @@ function setSettingsCorrectLanguage(correctLanguage) {
 
 function setSettingsTransliterationPolicy(transliterationPolicy) {
     Cookies.set('transliterationPolicy', transliterationPolicy);
-}
-
-function setSettingsDoProvideGrammarExplanations(doGrammarExplanations) {
-    Cookies.set('doProvideGrammarExplanations', doGrammarExplanations);
 }
 
 function setSettingsDoUseGPT4(key) {
@@ -133,13 +114,10 @@ function setSettingsPassword(password) {
 export {
     getSettingsNativeLanguage,
     getSettingsTargetLanguage,
-    getSettingsTransliterationPolicy,
-    getSettingsDoProvideGrammarExplanations,
     getSettingsDoUseGPT4,
     setSettingsNativeLanguage,
     setSettingsTargetLanguage,
     setSettingsTransliterationPolicy,
-    setSettingsDoProvideGrammarExplanations,
     setSettingsDoUseGPT4,
     getSettingsCorrectLanguage,
     setSettingsCorrectLanguage,

@@ -5,19 +5,36 @@ import {translate} from "./../nlp/translate"
 import "./../common_components/common.css"
 import {setSettingsTargetLanguage, getSettingsTargetLanguage} from "./../settings_manager/settings.js"
 
+
+
+
 const TranslationPage = () => {
     const [inputText, setInputText] = useState('');
     const [translatedText, setTranslatedText] = useState('');
-    const [targetLanguage, setTargetLanguage] = useState('');
 
     function onLanguageSelect(lang) {
-        setTargetLanguage(lang)
-        setSettingsTargetLanguage(lang)
+        console.log("Target language: " + lang)
+        setSettingsTargetLanguage(lang);
     }
 
     const handleTranslate = () => {
         setTranslatedText('')
-        translate(inputText, targetLanguage,
+        translate(inputText, getSettingsTargetLanguage(),
+            function (translation) {
+                setTranslatedText(translation)
+            },
+            function (translation) {
+                setTranslatedText(translation)
+            },
+            function (error) {
+                setTranslatedText("ERROR: ", error)
+            }
+        )
+    };
+
+    const handleAlign = () => {
+        setTranslatedText('')
+        translate(inputText, getSettingsTargetLanguage(),
             function (translation) {
                 setTranslatedText(translation)
             },
@@ -34,7 +51,9 @@ const TranslationPage = () => {
         <div className="translation-page">
             <div className="translation-page-controls">
                 <button onClick={handleTranslate}>Translate</button>
-                <LanguageSelector title={"Translate to"} onLanguageSelect={onLanguageSelect} isSorted={true}
+                <button onClick={handleAlign}>Create LangConnect .html</button>
+                <LanguageSelector title={"Translate to"} onLanguageSelect={onLanguageSelect}
+                                  isSorted={true}
                                   isEnglish={true} defaultLanguage={getSettingsTargetLanguage()}></LanguageSelector>
             </div>
 
@@ -49,7 +68,7 @@ const TranslationPage = () => {
                 <div className="translation-page-output">
                     <textarea
                         value={translatedText}
-                        readOnly
+                        onChange={(e) => setTranslatedText(e.target.value)}
                         placeholder="Translation will appear here"
                     />
                 </div>
