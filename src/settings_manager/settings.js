@@ -41,7 +41,7 @@ function getSettingsDoUseGPT4() {
     return val
 }
 
-function getSettingsModel(){
+function getSettingsModel() {
     let doUseGPT4 = getSettingsDoUseGPT4()
     let m = "gpt-3.5-turbo"
     if (doUseGPT4 === "yes") {
@@ -78,7 +78,7 @@ function setSettingsDoUseGPT4(key) {
 function getSettingsLogin() {
     let val = Cookies.get('login');
     if (val === undefined) {
-        return ""
+        return "guest"
     }
     return val
 }
@@ -104,12 +104,97 @@ function getSettingsSignedUp() {
 }
 
 function setSettingsSignedUp(signedUp) {
-    Cookies.set('login', signedUp? "true" : "false");
+    Cookies.set('login', signedUp ? "true" : "false");
 }
 
 function setSettingsPassword(password) {
     Cookies.set('password', password);
 }
+
+function getSettingsLanguageDoveAlignment() {
+    let val = Cookies.get('languageDoveAlignment');
+    if (val === undefined) {
+        return "hover";
+    }
+    return val
+}
+
+function getSettingsLanguageDoveDictionary() {
+    let val = Cookies.get('languageDoveDictionary');
+    if (val === undefined) {
+        return "wiktionary_en";
+    }
+    return val
+}
+
+function getSettingsLanguageDoveIPA() {
+    let val = Cookies.get('languageDoveIPA');
+    if (val === undefined) {
+        return "no";
+    }
+    return val
+}
+
+function getSettingsLanguageDoveTTS() {
+    let val = Cookies.get('languageDoveTTS');
+    if (val === undefined) {
+        return "yes";
+    }
+    return val
+}
+
+function getSettingsLanguageDoveGenTextTopic() {
+    let val = Cookies.get('languageDoveGenTextTopic');
+    if (val === undefined) {
+        return "random";
+    }
+    return val
+}
+
+function getSettingsLanguageDoveGenTextLength() {
+    let val = Cookies.get('languageDoveGenTextLength');
+    if (val === undefined) {
+        return "short";
+    }
+    return val
+}
+
+function getSettingsLanguageDoveGenTextDifficulty() {
+    let val = Cookies.get('languageDoveGenTextDifficulty');
+    if (val === undefined) {
+        return "medium";
+    }
+    return val
+}
+
+function setSettingsLanguageDoveAlignment(key) {
+    Cookies.set('languageDoveAlignment', key);
+}
+
+function setSettingsLanguageDoveDictionary(key) {
+    Cookies.set('languageDoveDictionary', key);
+}
+
+function setSettingsLanguageDoveTTS(key) {
+    Cookies.set('languageDoveTTS', key);
+}
+
+function setSettingsLanguageDoveIPA(key) {
+    Cookies.set('languageDoveIPA', key);
+}
+
+function setSettingsLanguageDoveGenTextTopic(key) {
+    Cookies.set('languageDoveGenTextTopic', key);
+}
+
+function setSettingsLanguageDoveGenTextDifficulty(key) {
+    Cookies.set('languageDoveGenTextDifficulty', key);
+}
+
+function setSettingsLanguageDoveGenTextLength(key) {
+    Cookies.set('languageDoveGenTextLength', key);
+}
+
 
 export {
     getSettingsNativeLanguage,
@@ -129,5 +214,20 @@ export {
     setSettingsPassword,
     getSettingsSignedUp,
     setSettingsSignedUp,
-    getSettingsModel
+    getSettingsModel,
+
+    getSettingsLanguageDoveAlignment,
+    getSettingsLanguageDoveDictionary,
+    getSettingsLanguageDoveTTS,
+    getSettingsLanguageDoveIPA,
+    getSettingsLanguageDoveGenTextTopic,
+    getSettingsLanguageDoveGenTextLength,
+    getSettingsLanguageDoveGenTextDifficulty,
+    setSettingsLanguageDoveGenTextDifficulty,
+    setSettingsLanguageDoveAlignment,
+    setSettingsLanguageDoveDictionary,
+    setSettingsLanguageDoveTTS,
+    setSettingsLanguageDoveIPA,
+    setSettingsLanguageDoveGenTextTopic,
+    setSettingsLanguageDoveGenTextLength,
 }

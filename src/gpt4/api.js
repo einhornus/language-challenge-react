@@ -4,12 +4,12 @@ import {Configuration, OpenAIApi} from 'openai';
 import {getSettingsLogin, getSettingsPassword, getSettingsModel} from "../settings_manager/settings";
 
 
-async function callGPT4(model, messages, temperature, max_tokens, onFullResult, onPartialResult, onError) {
+async function callGPT4(model, messages, temperature, max_tokens, onFullResult, onPartialResult, onError, l = getSettingsLogin()) {
     console.log("Calling GPT with model: ", model, " and messages: ")
     console.log(messages)
 
-    let l = getSettingsLogin()
-    let p = getSettingsPassword()
+    //let l = getSettingsLogin()
+    //let p = getSettingsPassword()
 
     const response = await fetch(process.env.REACT_APP_SERVER_URL + "/chat_completion", {
         method: 'POST',
@@ -18,7 +18,6 @@ async function callGPT4(model, messages, temperature, max_tokens, onFullResult, 
         },
         body: JSON.stringify({
             login: l,
-            password: p,
             model: model,
             messages: JSON.stringify(messages),
             max_tokens: max_tokens,

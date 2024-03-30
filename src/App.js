@@ -7,6 +7,7 @@ import LinkifyPage from "./linkify_page/LinkifyPage";
 import CorrectionPage from "./correction_page/CorrectionPage";
 import SettingsPage from "./settings_manager/SettingsPage";
 import SignUpPage from "./auth/SignUpPage";
+import LanguageDovePage from "./language_dove/LanguageDovePage";
 import {SignInPage} from "./auth/SignInPage";
 
 
@@ -24,6 +25,7 @@ function App() {
                 <Route path="linkify" element={<LinkifyPage></LinkifyPage>}/>
                 <Route path="correct" element={<CorrectionPage></CorrectionPage>}/>
                 <Route path="settings" element={<SettingsPage></SettingsPage>}/>
+                <Route path="language_dove" element={<LanguageDovePage></LanguageDovePage>}/>
             </Routes>
         </BrowserRouter>
     );

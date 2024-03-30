@@ -10,6 +10,8 @@ import {tokenize, tokenizeLocal} from "./tokenize";
 
 
 function getWiktionaryContext(word, language, onSuccess, onFailure) {
+    //onSuccess("");
+    //return;
     axios.get(`${process.env.REACT_APP_SERVER_URL}/wiktionary?word=${word}&lang=${language}`)
         .then(response => {
             console.log(response.data);
